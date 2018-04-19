@@ -80,7 +80,7 @@ void cols_init();
 void diag_init();
 void inv_diag_init();
 void fill_all();
-void check();
+void check(ALLEGRO_EVENT event);
 void check_cols();
 void check_diagons();
 void check_inv_diagons();
@@ -93,8 +93,7 @@ void redraw_elements();
 void shutdown();
 void check_move();
 void rand_elem();
-int getColor(int);
-void colr_generator();
+void menu(ALLEGRO_EVENT event);
 void game_over(ALLEGRO_EVENT event);
 
 ALLEGRO_DISPLAY *display;
@@ -112,12 +111,13 @@ ALLEGRO_BITMAP *hexagonal;
 ALLEGRO_BITMAP *startClick;
 ALLEGRO_BITMAP *gameOver;
 ALLEGRO_BITMAP *tempBitmap;
+ALLEGRO_BITMAP *menuBitmap;
+ALLEGRO_BITMAP *icon[2];
 ALLEGRO_BITMAP *elmBitmap[9];
 ALLEGRO_SAMPLE *bgSound;
 ALLEGRO_SAMPLE *clickSound;
 ALLEGRO_SAMPLE *endSound;
 ALLEGRO_SAMPLE *winSound;
-ALLEGRO_MENU *menu;
 ALLEGRO_MOUSE_STATE mState;
 HEXAGONAL cell[37];
 HEXAGONAL*col[7][7], *diag[7][7], *inv_diag[7][7];
@@ -126,7 +126,7 @@ ACTION move[3];
 
 int j, i, k, colr, activeElm, activeCell;
 int rnd[6];
-bool done, game_started, lost;
+bool done, game_started, lost, pause;
 bool move1, move2, move3;
 static int cellX = originX, cellY = originY, elX = elemX, elY = elemY;
 static int elemNum = 0, redraw = 1, score = 0;
@@ -232,6 +232,7 @@ void init() {
 	//gameOver = al_load_bitmap("gameOver.png");
 	gameOver = al_load_bitmap("gameOver2.png");
 	tempBitmap = al_load_bitmap("clrCell01.png");
+	menuBitmap = al_load_bitmap("menu.png");
 
 	elmBitmap[0] = al_load_bitmap("elmCell.png");
 
@@ -244,6 +245,8 @@ void init() {
 	elmBitmap[6] = al_load_bitmap("3C03.png");
 	elmBitmap[7] = al_load_bitmap("3C04.png");
 	elmBitmap[8] = al_load_bitmap("3C05.png");
+
+	icon[0] = al_load_bitmap("pause.png");
 
 	bgSound = al_load_sample("sound.wav");
 	clickSound = al_load_sample("click.wav");
@@ -313,6 +316,7 @@ void draw() {
 	cellX = originX, cellY = originY;
 
 	al_clear_to_color(background_color);
+	al_draw_bitmap(icon[0], 440, 10, NULL);
 	al_draw_textf(font, al_map_rgb(255, 255, 255), 5, 5, NULL, "SCORE: %d", score);
 	//al_draw_bitmap(bitmap3, originX, originY - 55, NULL);
 
@@ -728,9 +732,718 @@ void inv_diag_init() {
 
 }
 
-void check() {
+void check(ALLEGRO_EVENT event) {
 
-	//the check part that exist in the gameLoop will be here
+	for (i = 0; i < 37; i++) {
+
+		/*	if ((elem[3].x >= cell[i].x) && (elem[3].x <= cell[i].x + cellWidth) && (elem[3].y >= cell[i].y) && (elem[3].y <= cell[i].y + cellHeight)) {
+		cell[i].cellClr = elem[activeElm].elmClr;
+		}
+		else {
+		cell[i].cellClr = al_map_rgb(100, 50, 50);
+		}*/
+
+		if ((event.mouse.button & 1) && (!cell[i].filled) && (event.mouse.x >= cell[i].x) && (event.mouse.x <= cell[i].x + cellWidth) && (event.mouse.y >= cell[i].y) && (event.mouse.y <= cell[i].y + cellHeight) && ((move[0].state && !move[1].state && !move[2].state) || (!move[0].state && move[1].state && !move[2].state) || (!move[0].state && !move[1].state && move[2].state))) {
+
+			if (elem[activeElm].type == 1) {
+
+				cell[i].filled = true;
+
+				cell[i].cellClr = elem[activeElm].elmClr;
+
+				score++;
+
+				if (cell[i].filled = true) {
+
+					elem[activeElm].exist = false;
+					move[activeElm].state = false;
+
+					printf("el[%d].x = %d -- el[%d].y = %d", i, elem[activeElm].x, i, elem[activeElm].y);
+					printf("inside CFT %d\n", i);
+					printf("activEL is  %d\n", activeElm);
+					printf("exist[%d] = %d", i, elem[i].exist);
+					printf("2ndMove[%d].state =  %d\n", i, move[i].state);
+
+				}
+			}
+			else if (elem[activeElm].type == 2) {
+
+				switch (elem[activeElm].id)
+				{
+				case 1://======================  >>>>> CASE 1 <<<<< =========================
+
+					if (cell[i].id == 3 || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21 || cell[i].id == 27 || cell[i].id == 32 || cell[i].id == 36) {
+						continue;
+					}
+					if (cell[i + 1].filled) {
+						continue;
+					}
+					cell[i].filled = true;
+					cell[i + 1].filled = true;
+
+					cell[i].cellClr = elem[activeElm].elmClr;
+					cell[i + 1].cellClr = elem[activeElm].elmClr;
+
+					score += 2;
+
+					if (cell[i].filled && cell[i + 1].filled) {
+
+						elem[activeElm].exist = false;
+						move[activeElm].state = false;
+					}
+					break;
+
+				case 2://======================  >>>>> CASE 2 <<<<< =========================
+
+					if ((cell[i].id >= 32 && cell[i].id <= 36) || cell[i].id == 21 || cell[i].id == 27) {
+						continue;
+					}
+					if ((cell[i].id >= 0 && cell[i].id <= 3) || (cell[i].id >= 28 && cell[i].id <= 31)) {
+
+						if (cell[i + 5].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 5].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 5].cellClr = elem[activeElm].elmClr;
+
+						score += 2;
+
+						if (cell[i].filled && cell[i + 5].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 2nd and 7th columns
+
+					if ((cell[i].id >= 4 && cell[i].id <= 8) || (cell[i].id >= 23 && cell[i].id <= 27)) {
+
+						if (cell[i + 6].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 6].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 6].cellClr = elem[activeElm].elmClr;
+
+						score += 2;
+
+						if (cell[i].filled && cell[i + 6].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 3rd and 6th columns
+
+					if ((cell[i].id >= 9 && cell[i].id <= 21)) {
+
+						if (cell[i + 7].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 7].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 7].cellClr = elem[activeElm].elmClr;
+
+						score += 2;
+
+						if (cell[i].filled && cell[i + 7].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 4th and 5th columns
+
+					break;
+
+				case 3://======================  >>>>> CASE 3 <<<<< =========================
+
+					if (cell[i].id == 15 || cell[i].id == 22 || cell[i].id == 28 || cell[i].id == 33 || cell[i].id == 34 || cell[i].id == 35 || cell[i].id == 36) {
+						continue;
+					}
+					if ((cell[i].id >= 0 && cell[i].id <= 3) || (cell[i].id >= 29 && cell[i].id <= 32)) {
+
+						if (cell[i + 4].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 4].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 4].cellClr = elem[activeElm].elmClr;
+
+						score += 2;
+
+						if (cell[i].filled && cell[i + 4].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 1st and 6th columns
+
+					if ((cell[i].id >= 4 && cell[i].id <= 8) || (cell[i].id >= 23 && cell[i].id <= 27)) {
+
+						if (cell[i + 5].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 5].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 5].cellClr = elem[activeElm].elmClr;
+
+						score += 2;
+
+						if (cell[i].filled && cell[i + 5].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 2nd and 5th columns
+
+					if ((cell[i].id >= 9 && cell[i].id <= 14) || (cell[i].id >= 16 && cell[i].id <= 21)) {
+
+						if (cell[i + 6].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 6].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 6].cellClr = elem[activeElm].elmClr;
+
+						score += 2;
+
+						if (cell[i].filled && cell[i + 6].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 3rd and 4th columns
+
+					break;
+
+				default:
+					break;
+				}
+			}
+			else if (elem[activeElm].type == 3) {
+
+				switch (elem[activeElm].id)
+				{
+				case 4: //======================  >>>>> CASE 4 <<<<< =========================
+
+					if (cell[i].id == 3 || cell[i].id == 3 || cell[i].id == 7 || cell[i].id == 8 || cell[i].id == 13 || cell[i].id == 14 || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 26 || cell[i].id == 27 || cell[i].id == 31 || cell[i].id == 32 || cell[i].id == 35 || cell[i].id == 36) {
+						continue;
+					}
+					if (cell[i + 1].filled || cell[i + 2].filled) {
+						continue;
+					}
+					cell[i].filled = true;
+					cell[i + 1].filled = true;
+					cell[i + 2].filled = true;
+
+					cell[i].cellClr = elem[activeElm].elmClr;
+					cell[i + 1].cellClr = elem[activeElm].elmClr;
+					cell[i + 2].cellClr = elem[activeElm].elmClr;
+
+					score += 3;
+
+					if (cell[i].filled && cell[i + 1].filled && cell[i + 2].filled) {
+
+						elem[activeElm].exist = false;
+						move[activeElm].state = false;
+					}
+					break;
+
+				case 5://======================  >>>>> CASE 5 <<<<< =========================
+
+					if ((cell[i].id >= 26 && cell[i].id <= 36) || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 14) {
+						continue;
+					}
+					if (cell[i].id >= 0 && cell[i].id <= 3) {
+
+						if (cell[i + 5].filled || cell[i + 11].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 5].filled = true;
+						cell[i + 11].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 5].cellClr = elem[activeElm].elmClr;
+						cell[i + 11].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 5].filled && cell[i + 11].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end 1st column
+
+					if (cell[i].id >= 4 && cell[i].id <= 8) {
+
+						if (cell[i + 6].filled || cell[i + 13].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 6].filled = true;
+						cell[i + 13].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 6].cellClr = elem[activeElm].elmClr;
+						cell[i + 13].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 6].filled && cell[i + 13].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 2nd column
+
+					if ((cell[i].id >= 9 && cell[i].id <= 13)) {
+
+						if (cell[i + 7].filled || cell[i + 14].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 7].filled = true;
+						cell[i + 14].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 7].cellClr = elem[activeElm].elmClr;
+						cell[i + 14].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 7].filled && cell[i + 14].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 3rd column
+
+					if ((cell[i].id >= 15 && cell[i].id <= 19)) {
+
+						if (cell[i + 7].filled || cell[i + 13].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 7].filled = true;
+						cell[i + 13].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 7].cellClr = elem[activeElm].elmClr;
+						cell[i + 13].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 7].filled && cell[i + 13].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 4th column
+
+					if ((cell[i].id >= 22 && cell[i].id <= 25)) {
+
+						if (cell[i + 6].filled || cell[i + 11].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 6].filled = true;
+						cell[i + 11].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 6].cellClr = elem[activeElm].elmClr;
+						cell[i + 11].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i + 6].filled && cell[i + 11].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 5th column
+
+					break;
+
+				case 6: //======================  >>>>> CASE 6 <<<<< =========================
+
+					if ((cell[i].id >= 28 && cell[i].id <= 36) || cell[i].id == 9 || cell[i].id == 15 || cell[i].id == 16 || cell[i].id == 22 || cell[i].id == 23) {
+						continue;
+					}
+					if (cell[i].id >= 0 && cell[i].id <= 3) {
+
+						if (cell[i + 4].filled || cell[i + 9].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 4].filled = true;
+						cell[i + 9].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 4].cellClr = elem[activeElm].elmClr;
+						cell[i + 9].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 4].filled && cell[i + 9].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end 1st column
+
+					if (cell[i].id >= 4 && cell[i].id <= 8) {
+
+						if (cell[i + 5].filled || cell[i + 11].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 5].filled = true;
+						cell[i + 11].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 5].cellClr = elem[activeElm].elmClr;
+						cell[i + 11].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 5].filled && cell[i + 11].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 2nd column
+
+					if ((cell[i].id >= 10 && cell[i].id <= 14)) {
+
+						if (cell[i + 6].filled || cell[i + 12].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 6].filled = true;
+						cell[i + 12].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 6].cellClr = elem[activeElm].elmClr;
+						cell[i + 12].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 6].filled && cell[i + 12].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 3rd column
+
+					if ((cell[i].id >= 17 && cell[i].id <= 21)) {
+
+						if (cell[i + 6].filled || cell[i + 11].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 6].filled = true;
+						cell[i + 11].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 6].cellClr = elem[activeElm].elmClr;
+						cell[i + 11].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 6].filled && cell[i + 11].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 4th column
+
+					if ((cell[i].id >= 24 && cell[i].id <= 27)) {
+
+						if (cell[i + 5].filled || cell[i + 9].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 5].filled = true;
+						cell[i + 9].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 5].cellClr = elem[activeElm].elmClr;
+						cell[i + 9].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 5].filled && cell[i + 9].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 5th column
+
+					break;
+
+				case 7: //======================  >>>>> CASE 7 <<<<< =========================
+
+					if ((cell[i].id >= 27 && cell[i].id <= 36) || cell[i].id == 15 || cell[i].id == 21 || cell[i].id == 22) {
+						continue;
+					}
+					if (cell[i].id >= 0 && cell[i].id <= 3) {
+
+						if (cell[i + 5].filled || cell[i + 10].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 5].filled = true;
+						cell[i + 10].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 5].cellClr = elem[activeElm].elmClr;
+						cell[i + 10].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 5].filled && cell[i + 10].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end 1st column
+
+					if (cell[i].id >= 4 && cell[i].id <= 8) {
+
+						if (cell[i + 6].filled || cell[i + 12].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 6].filled = true;
+						cell[i + 12].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 6].cellClr = elem[activeElm].elmClr;
+						cell[i + 12].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 6].filled && cell[i + 12].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 2nd column
+
+					if ((cell[i].id >= 9 && cell[i].id <= 14)) {
+
+						if (cell[i + 7].filled || cell[i + 13].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 7].filled = true;
+						cell[i + 13].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 7].cellClr = elem[activeElm].elmClr;
+						cell[i + 13].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 7].filled && cell[i + 13].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 3rd column
+
+					if ((cell[i].id >= 16 && cell[i].id <= 20)) {
+
+						if (cell[i + 7].filled || cell[i + 12].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 7].filled = true;
+						cell[i + 12].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 7].cellClr = elem[activeElm].elmClr;
+						cell[i + 12].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 7].filled && cell[i + 12].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 4th column
+
+					if ((cell[i].id >= 23 && cell[i].id <= 26)) {
+
+						if (cell[i + 6].filled || cell[i + 10].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 6].filled = true;
+						cell[i + 10].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 6].cellClr = elem[activeElm].elmClr;
+						cell[i + 10].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 6].filled && cell[i + 10].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 5th column
+
+					break;
+
+				case 8: //======================  >>>>> CASE 8 <<<<< =========================
+
+					if ((cell[i].id >= 27 && cell[i].id <= 36) || cell[i].id == 15 || cell[i].id == 21 || cell[i].id == 22) {
+						continue;
+					}
+					if (cell[i].id >= 0 && cell[i].id <= 3) {
+
+						if (cell[i + 4].filled || cell[i + 10].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 4].filled = true;
+						cell[i + 10].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 4].cellClr = elem[activeElm].elmClr;
+						cell[i + 10].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 4].filled && cell[i + 10].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end 1st column
+
+					if (cell[i].id >= 4 && cell[i].id <= 8) {
+
+						if (cell[i + 5].filled || cell[i + 12].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 5].filled = true;
+						cell[i + 12].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 5].cellClr = elem[activeElm].elmClr;
+						cell[i + 12].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 5].filled && cell[i + 12].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 2nd column
+
+					if ((cell[i].id >= 9 && cell[i].id <= 14)) {
+
+						if (cell[i + 6].filled || cell[i + 13].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 6].filled = true;
+						cell[i + 13].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 6].cellClr = elem[activeElm].elmClr;
+						cell[i + 13].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 6].filled && cell[i + 13].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 3rd column
+
+					if ((cell[i].id >= 16 && cell[i].id <= 20)) {
+
+						if (cell[i + 6].filled || cell[i + 12].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 6].filled = true;
+						cell[i + 12].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 6].cellClr = elem[activeElm].elmClr;
+						cell[i + 12].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 6].filled && cell[i + 12].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 4th column
+
+					if ((cell[i].id >= 23 && cell[i].id <= 26)) {
+
+						if (cell[i + 5].filled || cell[i + 10].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i + 5].filled = true;
+						cell[i + 10].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i + 5].cellClr = elem[activeElm].elmClr;
+						cell[i + 10].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i + 5].filled && cell[i + 10].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 5th column
+
+					break;
+				case 9:
+
+					break;
+				default:
+					break;
+				}
+
+			}
+			printf("cell[%d].filled = %d\n", i, cell[i].filled);
+			printf("Your Score is = %d\n", score);
+			check_cols();
+			is_good_col();
+			is_good_diag();
+			is_good_inv_diag();
+			cell_update();
+		}//
+	}
 	
 }
 
@@ -1085,7 +1798,7 @@ void fill_all() {
 		}
 	}
 	al_flip_display();
-	check();
+	check(event);
 }
 
 void user_input(ALLEGRO_EVENT event) {
@@ -1125,22 +1838,25 @@ void game_loop(ALLEGRO_EVENT event) {
 
 	while (!done) {
 
-		//al_get_mouse_state(&mState);
 		al_wait_for_event(queue, &event);
 		//al_play_sample(bgSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, 0);
 
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-		//	done = true;
-		}
-		else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-
-
-		}
-
-		if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-			//done = true;
+			done = true;
 		}
 		
+		if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+			done = true;
+		}
+		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+		
+			if ((event.mouse.button & 1) && (event.mouse.x >= 440) && (event.mouse.x <= 490) && (event.mouse.y >= 10) && (event.mouse.y <= 60)) {
+			
+				printf("pause!\n");
+				pause = true;
+				menu(event);
+			}
+		}
 		if (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
 
 			elem[3].x = event.mouse.x;
@@ -1196,724 +1912,11 @@ void game_loop(ALLEGRO_EVENT event) {
 				}
 			}
 
-			for (i = 0; i < 37; i++) {
-
-			/*	if ((elem[3].x >= cell[i].x) && (elem[3].x <= cell[i].x + cellWidth) && (elem[3].y >= cell[i].y) && (elem[3].y <= cell[i].y + cellHeight)) {
-					cell[i].cellClr = elem[activeElm].elmClr;
-				}
-				else {
-					cell[i].cellClr = al_map_rgb(100, 50, 50);
-				}*/
-
-				if ((event.mouse.button & 1) && (!cell[i].filled) && (event.mouse.x >= cell[i].x) && (event.mouse.x <= cell[i].x + cellWidth) && (event.mouse.y >= cell[i].y) && (event.mouse.y <= cell[i].y + cellHeight) && ((move[0].state && !move[1].state && !move[2].state) || (!move[0].state && move[1].state && !move[2].state) || (!move[0].state && !move[1].state && move[2].state))) {
-					
-					if (elem[activeElm].type == 1) {
-
-						cell[i].filled = true;
-
-						cell[i].cellClr = elem[activeElm].elmClr;
-						
-						score++;
-
-						if (cell[i].filled = true) {
-
-							elem[activeElm].exist = false;
-							move[activeElm].state = false;
-
-							printf("el[%d].x = %d -- el[%d].y = %d", i, elem[activeElm].x, i, elem[activeElm].y);
-							printf("inside CFT %d\n", i);
-							printf("activEL is  %d\n", activeElm);
-							printf("exist[%d] = %d", i, elem[i].exist);
-							printf("2ndMove[%d].state =  %d\n", i, move[i].state);
-
-						}
-					}
-					else if (elem[activeElm].type == 2) {
-
-						switch (elem[activeElm].id)
-						{
-						case 1://======================  >>>>> CASE 1 <<<<< =========================
-
-							if (cell[i].id == 3 || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21 || cell[i].id == 27 || cell[i].id == 32 || cell[i].id == 36) {
-								continue;
-							}
-							if (cell[i + 1].filled) {
-								continue;
-							}
-							cell[i].filled = true;
-							cell[i + 1].filled = true;
-
-							cell[i].cellClr = elem[activeElm].elmClr;
-							cell[i + 1].cellClr = elem[activeElm].elmClr;
-							
-							score += 2;
-
-							if (cell[i].filled && cell[i + 1].filled) {
-
-								elem[activeElm].exist = false;
-								move[activeElm].state = false;
-							}
-							break;
-
-						case 2://======================  >>>>> CASE 2 <<<<< =========================
-
-							if ((cell[i].id >=32 && cell[i].id <= 36) || cell[i].id == 21 || cell[i].id == 27) {
-								continue;
-							}
-							if ((cell[i].id >= 0 && cell[i].id <= 3) || (cell[i].id >= 28 && cell[i].id <= 31)) {
-
-								if (cell[i + 5].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 5].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 5].cellClr = elem[activeElm].elmClr;
-
-								score += 2;
-
-								if (cell[i].filled && cell[i + 5].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 2nd and 7th columns
-
-							if ((cell[i].id >= 4 && cell[i].id <= 8) || (cell[i].id >= 23 && cell[i].id <= 27)) {
-
-								if (cell[i + 6].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 6].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 6].cellClr = elem[activeElm].elmClr;
-
-								score += 2;
-
-								if (cell[i].filled && cell[i + 6].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 3rd and 6th columns
-
-							if ((cell[i].id >= 9 && cell[i].id <= 21)) {
-
-								if (cell[i + 7].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 7].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 7].cellClr = elem[activeElm].elmClr;
-
-								score += 2;
-
-								if (cell[i].filled && cell[i + 7].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 4th and 5th columns
-
-							break;
-
-						case 3://======================  >>>>> CASE 3 <<<<< =========================
-
-							if (cell[i].id == 15 || cell[i].id == 22 || cell[i].id == 28 || cell[i].id == 33 || cell[i].id == 34 || cell[i].id == 35 || cell[i].id == 36) {
-								continue;
-							}
-							if ((cell[i].id >= 0 && cell[i].id <= 3) || (cell[i].id >= 29 && cell[i].id <= 32)) {
-
-								if (cell[i + 4].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 4].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 4].cellClr = elem[activeElm].elmClr;
-
-								score += 2;
-
-								if (cell[i].filled && cell[i + 4].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 1st and 6th columns
-
-							if ((cell[i].id >= 4 && cell[i].id <= 8) || (cell[i].id >= 23 && cell[i].id <= 27)) {
-							
-								if (cell[i + 5].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 5].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 5].cellClr = elem[activeElm].elmClr;
-
-								score += 2;
-
-								if (cell[i].filled && cell[i + 5].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 2nd and 5th columns
-
-							if ((cell[i].id >= 9 && cell[i].id <= 14) || (cell[i].id >= 16 && cell[i].id <= 21)) {
-
-								if (cell[i + 6].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 6].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 6].cellClr = elem[activeElm].elmClr;
-
-								score += 2;
-
-								if (cell[i].filled && cell[i + 6].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 3rd and 4th columns
-							
-							break;
-
-						default:
-							break;
-						}
-					}
-					else if (elem[activeElm].type == 3) {
-
-						switch (elem[activeElm].id)
-						{
-						case 4: //======================  >>>>> CASE 4 <<<<< =========================
-
-							if (cell[i].id == 3 || cell[i].id == 3 || cell[i].id == 7 || cell[i].id == 8 || cell[i].id == 13 || cell[i].id == 14 || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 26 || cell[i].id == 27 || cell[i].id == 31 || cell[i].id == 32 || cell[i].id == 35 || cell[i].id == 36) {
-								continue;
-							}
-							if (cell[i + 1].filled || cell[i + 2].filled) {
-								continue;
-							}
-							cell[i].filled = true;
-							cell[i + 1].filled = true;
-							cell[i + 2].filled = true;
-
-							cell[i].cellClr = elem[activeElm].elmClr;
-							cell[i + 1].cellClr = elem[activeElm].elmClr;
-							cell[i + 2].cellClr = elem[activeElm].elmClr;
-
-							score += 3;
-
-							if (cell[i].filled && cell[i + 1].filled && cell[i + 2].filled) {
-
-								elem[activeElm].exist = false;
-								move[activeElm].state = false;
-							}
-							break;
-
-						case 5://======================  >>>>> CASE 5 <<<<< =========================
-
-							if ((cell[i].id >= 26 && cell[i].id <= 36) || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 14) {
-								continue;
-							}
-							if (cell[i].id >= 0 && cell[i].id <= 3) {
-
-								if (cell[i + 5].filled || cell[i + 11].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 5].filled = true;
-								cell[i + 11].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 5].cellClr = elem[activeElm].elmClr;
-								cell[i + 11].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 5].filled && cell[i + 11].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end 1st column
-
-							if (cell[i].id >= 4 && cell[i].id <= 8) {
-
-								if (cell[i + 6].filled || cell[i + 13].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 6].filled = true;
-								cell[i + 13].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 6].cellClr = elem[activeElm].elmClr;
-								cell[i + 13].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 6].filled && cell[i + 13].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 2nd column
-
-							if ((cell[i].id >= 9 && cell[i].id <= 13)) {
-
-								if (cell[i + 7].filled || cell[i + 14].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 7].filled = true;
-								cell[i + 14].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 7].cellClr = elem[activeElm].elmClr;
-								cell[i + 14].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 7].filled && cell[i + 14].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 3rd column
-
-							if ((cell[i].id >= 15 && cell[i].id <= 19)) {
-
-								if (cell[i + 7].filled || cell[i + 13].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 7].filled = true;
-								cell[i + 13].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 7].cellClr = elem[activeElm].elmClr;
-								cell[i + 13].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 7].filled && cell[i + 13].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 4th column
-
-							if ((cell[i].id >= 22 && cell[i].id <= 25)) {
-
-								if (cell[i + 6].filled || cell[i + 11].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 6].filled = true;
-								cell[i + 11].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 6].cellClr = elem[activeElm].elmClr;
-								cell[i + 11].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i + 6].filled && cell[i + 11].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 5th column
-
-							break;
-
-						case 6: //======================  >>>>> CASE 6 <<<<< =========================
-
-							if ((cell[i].id >= 28 && cell[i].id <= 36) || cell[i].id == 9 || cell[i].id == 15 || cell[i].id == 16 || cell[i].id == 22 || cell[i].id == 23) {
-								continue;
-							}
-							if (cell[i].id >= 0 && cell[i].id <= 3) {
-
-								if (cell[i + 4].filled || cell[i + 9].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 4].filled = true;
-								cell[i + 9].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 4].cellClr = elem[activeElm].elmClr;
-								cell[i + 9].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 4].filled && cell[i + 9].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end 1st column
-
-							if (cell[i].id >= 4 && cell[i].id <= 8) {
-
-								if (cell[i + 5].filled || cell[i + 11].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 5].filled = true;
-								cell[i + 11].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 5].cellClr = elem[activeElm].elmClr;
-								cell[i + 11].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 5].filled && cell[i + 11].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 2nd column
-
-							if ((cell[i].id >= 10 && cell[i].id <= 14)) {
-
-								if (cell[i + 6].filled || cell[i + 12].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 6].filled = true;
-								cell[i + 12].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 6].cellClr = elem[activeElm].elmClr;
-								cell[i + 12].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 6].filled && cell[i + 12].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 3rd column
-
-							if ((cell[i].id >= 17 && cell[i].id <= 21)) {
-
-								if (cell[i + 6].filled || cell[i + 11].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 6].filled = true;
-								cell[i + 11].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 6].cellClr = elem[activeElm].elmClr;
-								cell[i + 11].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 6].filled && cell[i + 11].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 4th column
-
-							if ((cell[i].id >= 24 && cell[i].id <= 27)) {
-
-								if (cell[i + 5].filled || cell[i + 9].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 5].filled = true;
-								cell[i + 9].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 5].cellClr = elem[activeElm].elmClr;
-								cell[i + 9].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 5].filled && cell[i + 9].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 5th column
-
-							break;
-
-						case 7: //======================  >>>>> CASE 7 <<<<< =========================
-
-							if ((cell[i].id >= 27 && cell[i].id <= 36) || cell[i].id == 15 || cell[i].id == 21 || cell[i].id == 22) {
-								continue;
-							}
-							if (cell[i].id >= 0 && cell[i].id <= 3) {
-
-								if (cell[i + 5].filled || cell[i + 10].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 5].filled = true;
-								cell[i + 10].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 5].cellClr = elem[activeElm].elmClr;
-								cell[i + 10].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 5].filled && cell[i + 10].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end 1st column
-
-							if (cell[i].id >= 4 && cell[i].id <= 8) {
-
-								if (cell[i + 6].filled || cell[i + 12].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 6].filled = true;
-								cell[i + 12].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 6].cellClr = elem[activeElm].elmClr;
-								cell[i + 12].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 6].filled && cell[i + 12].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 2nd column
-
-							if ((cell[i].id >= 9 && cell[i].id <= 14)) {
-
-								if (cell[i + 7].filled || cell[i + 13].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 7].filled = true;
-								cell[i + 13].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 7].cellClr = elem[activeElm].elmClr;
-								cell[i + 13].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 7].filled && cell[i + 13].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 3rd column
-
-							if ((cell[i].id >= 16 && cell[i].id <= 20)) {
-
-								if (cell[i + 7].filled || cell[i + 12].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 7].filled = true;
-								cell[i + 12].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 7].cellClr = elem[activeElm].elmClr;
-								cell[i + 12].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 7].filled && cell[i + 12].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 4th column
-
-							if ((cell[i].id >= 23 && cell[i].id <= 26)) {
-
-								if (cell[i + 6].filled || cell[i + 10].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 6].filled = true;
-								cell[i + 10].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 6].cellClr = elem[activeElm].elmClr;
-								cell[i + 10].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 6].filled && cell[i + 10].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 5th column
-
-							break;
-
-						case 8: //======================  >>>>> CASE 8 <<<<< =========================
-
-							if ((cell[i].id >= 27 && cell[i].id <= 36) || cell[i].id == 15 || cell[i].id == 21 || cell[i].id == 22) {
-								continue;
-							}
-							if (cell[i].id >= 0 && cell[i].id <= 3) {
-
-								if (cell[i + 4].filled || cell[i + 10].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 4].filled = true;
-								cell[i + 10].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 4].cellClr = elem[activeElm].elmClr;
-								cell[i + 10].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 4].filled && cell[i + 10].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end 1st column
-
-							if (cell[i].id >= 4 && cell[i].id <= 8) {
-
-								if (cell[i + 5].filled || cell[i + 12].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 5].filled = true;
-								cell[i + 12].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 5].cellClr = elem[activeElm].elmClr;
-								cell[i + 12].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 5].filled && cell[i + 12].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 2nd column
-
-							if ((cell[i].id >= 9 && cell[i].id <= 14)) {
-
-								if (cell[i + 6].filled || cell[i + 13].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 6].filled = true;
-								cell[i + 13].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 6].cellClr = elem[activeElm].elmClr;
-								cell[i + 13].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 6].filled && cell[i + 13].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 3rd column
-
-							if ((cell[i].id >= 16 && cell[i].id <= 20)) {
-
-								if (cell[i + 6].filled || cell[i + 12].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 6].filled = true;
-								cell[i + 12].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 6].cellClr = elem[activeElm].elmClr;
-								cell[i + 12].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 6].filled && cell[i + 12].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 4th column
-
-							if ((cell[i].id >= 23 && cell[i].id <= 26)) {
-
-								if (cell[i + 5].filled || cell[i + 10].filled) {
-									continue;
-								}
-								cell[i].filled = true;
-								cell[i + 5].filled = true;
-								cell[i + 10].filled = true;
-
-								cell[i].cellClr = elem[activeElm].elmClr;
-								cell[i + 5].cellClr = elem[activeElm].elmClr;
-								cell[i + 10].cellClr = elem[activeElm].elmClr;
-
-								score += 3;
-
-								if (cell[i].filled && cell[i + 5].filled && cell[i + 10].filled) {
-
-									elem[activeElm].exist = false;
-									move[activeElm].state = false;
-								}
-							}//end of 5th column
-
-							break;
-						case 9:
-
-							break;
-						default:
-							break;
-						}
-
-					}
-					printf("cell[%d].filled = %d\n", i, cell[i].filled);
-					printf("Your Score is = %d\n", score);
-					check_cols();
-					is_good_col();
-					is_good_diag();
-					is_good_inv_diag();
-					cell_update();
-				}//
-			}
-			
+			check(event);	
 		}
-		//cell_update();
-		//rand_elem();
-		draw();
-		
+		draw();	
 	}
-	//game_over();
+	printf("done!");
 }
 
 void shutdown(void) {
@@ -2051,18 +2054,6 @@ void rand_elem() {
 	*/
 }
 
-void colr_generator() {
-
-	srand(time(NULL));
-
-	for (i = 0; i < 7; i++) {
-
-		rnd[i] = rand() % 6;
-	}
-	
-
-}
-
 void game_over(ALLEGRO_EVENT event) {
 
 
@@ -2090,14 +2081,45 @@ void game_over(ALLEGRO_EVENT event) {
 				printf("Quit\n");
 			}
 		}
-		al_create_menu();
 		al_flip_display();
 	}
 
 }
 
-int getColor(int i) {
+void menu(ALLEGRO_EVENT event) {
+
+	al_draw_bitmap(menuBitmap, 0, 0, NULL);
+
+	while (pause)
+	{
+
+		al_wait_for_event(queue, &event);
+
+		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+
+			if ((event.mouse.button & 1) && (event.mouse.x >= 125) && (event.mouse.x <= 360) && (event.mouse.y >= 125) && (event.mouse.y <= 170)) {
+				printf("resume\n");
+				pause = false;
+
+			}
+			else if ((event.mouse.button & 1) && (event.mouse.x >= 125) && (event.mouse.x <= 360) && (event.mouse.y >= 235) && (event.mouse.y <= 273)) {
+
+				printf("setting\n");
+			}
+			else if ((event.mouse.button & 1) && (event.mouse.x >= 175) && (event.mouse.x <= 318) && (event.mouse.y >= 330) && (event.mouse.y <= 370)) {
+
+				printf("Help\n");
+			}
+			else if ((event.mouse.button & 1) && (event.mouse.x >= 185) && (event.mouse.x <= 314) && (event.mouse.y >= 425) && (event.mouse.y <= 465)) {
+
+				printf("Exit\n");
+				shutdown();
+				exit(-1);
+				
+			}
+		}
+		al_flip_display();
+	}
 
 
-
-}
+ }
