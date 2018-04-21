@@ -52,7 +52,7 @@ typedef struct {
 
 	int x, y, orgX, orgY;
 	int id, type;
-	bool exist;
+	bool exist, badElem;
 	ALLEGRO_BITMAP *bitmap;
 	ALLEGRO_COLOR elmClr;
 
@@ -95,6 +95,8 @@ void check_move();
 void rand_elem();
 void menu(ALLEGRO_EVENT event);
 void game_over(ALLEGRO_EVENT event);
+void check_end();
+void check_end2();
 
 ALLEGRO_DISPLAY *display;
 ALLEGRO_EVENT_QUEUE *queue;
@@ -129,7 +131,7 @@ int rnd[6];
 bool done, game_started, lost, pause;
 bool move1, move2, move3;
 static int cellX = originX, cellY = originY, elX = elemX, elY = elemY;
-static int elemNum = 0, redraw = 1, score = 0;
+static int elemNum = 0, redraw = 1, score = 0, counter[8];
 int c1, c2, c3;
 
 
@@ -709,7 +711,7 @@ void inv_diag_init() {
 			inv_diag[5][i + 3] = col[j][5];
 	}
 	
-	inv_diag[1][0] = col[1][0];
+	inv_diag[1][0] = col[2][0];
 
 	for (i = 0, j = 1; i < 2, j < 3; i++, j++) { //init. the left elements of inv_diag[2]
 
@@ -759,10 +761,8 @@ void check(ALLEGRO_EVENT event) {
 					move[activeElm].state = false;
 
 					printf("el[%d].x = %d -- el[%d].y = %d", i, elem[activeElm].x, i, elem[activeElm].y);
-					printf("inside CFT %d\n", i);
 					printf("activEL is  %d\n", activeElm);
 					printf("exist[%d] = %d", i, elem[i].exist);
-					printf("2ndMove[%d].state =  %d\n", i, move[i].state);
 
 				}
 			}
@@ -862,63 +862,63 @@ void check(ALLEGRO_EVENT event) {
 
 				case 3://======================  >>>>> CASE 3 <<<<< =========================
 
-					if (cell[i].id == 15 || cell[i].id == 22 || cell[i].id == 28 || cell[i].id == 33 || cell[i].id == 34 || cell[i].id == 35 || cell[i].id == 36) {
+					if ((cell[i].id >= 0 && cell[i].id <=3) || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21) {
 						continue;
 					}
-					if ((cell[i].id >= 0 && cell[i].id <= 3) || (cell[i].id >= 29 && cell[i].id <= 32)) {
+					if ((cell[i].id >= 4 && cell[i].id <= 7) || (cell[i].id >= 33 && cell[i].id <= 36)) {
 
-						if (cell[i + 4].filled) {
+						if (cell[i - 4].filled) {
 							continue;
 						}
 						cell[i].filled = true;
-						cell[i + 4].filled = true;
+						cell[i - 4].filled = true;
 
 						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 4].cellClr = elem[activeElm].elmClr;
+						cell[i - 4].cellClr = elem[activeElm].elmClr;
 
 						score += 2;
 
-						if (cell[i].filled && cell[i + 4].filled) {
-
-							elem[activeElm].exist = false;
-							move[activeElm].state = false;
-						}
-					}//end of 1st and 6th columns
-
-					if ((cell[i].id >= 4 && cell[i].id <= 8) || (cell[i].id >= 23 && cell[i].id <= 27)) {
-
-						if (cell[i + 5].filled) {
-							continue;
-						}
-						cell[i].filled = true;
-						cell[i + 5].filled = true;
-
-						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 5].cellClr = elem[activeElm].elmClr;
-
-						score += 2;
-
-						if (cell[i].filled && cell[i + 5].filled) {
+						if (cell[i].filled && cell[i - 4].filled) {
 
 							elem[activeElm].exist = false;
 							move[activeElm].state = false;
 						}
 					}//end of 2nd and 5th columns
 
-					if ((cell[i].id >= 9 && cell[i].id <= 14) || (cell[i].id >= 16 && cell[i].id <= 21)) {
+					if ((cell[i].id >= 9 && cell[i].id <= 13) || (cell[i].id >= 28 && cell[i].id <= 32)) {
 
-						if (cell[i + 6].filled) {
+						if (cell[i - 5].filled) {
 							continue;
 						}
 						cell[i].filled = true;
-						cell[i + 6].filled = true;
+						cell[i - 5].filled = true;
 
 						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 6].cellClr = elem[activeElm].elmClr;
+						cell[i - 5].cellClr = elem[activeElm].elmClr;
 
 						score += 2;
 
-						if (cell[i].filled && cell[i + 6].filled) {
+						if (cell[i].filled && cell[i - 5].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 3rd and 6th columns
+
+					if ((cell[i].id >= 15 && cell[i].id <= 20) || (cell[i].id >= 22 && cell[i].id <= 27)) {
+
+						if (cell[i - 6].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i - 6].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i - 6].cellClr = elem[activeElm].elmClr;
+
+						score += 2;
+
+						if (cell[i].filled && cell[i - 6].filled) {
 
 							elem[activeElm].exist = false;
 							move[activeElm].state = false;
@@ -1079,118 +1079,118 @@ void check(ALLEGRO_EVENT event) {
 
 				case 6: //======================  >>>>> CASE 6 <<<<< =========================
 
-					if ((cell[i].id >= 28 && cell[i].id <= 36) || cell[i].id == 9 || cell[i].id == 15 || cell[i].id == 16 || cell[i].id == 22 || cell[i].id == 23) {
+					if ((cell[i].id >= 0 && cell[i].id <= 8) || cell[i].id == 13 || cell[i].id == 14 || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 27) {
 						continue;
 					}
-					if (cell[i].id >= 0 && cell[i].id <= 3) {
+					if (cell[i].id >= 9 && cell[i].id <= 12) {
 
-						if (cell[i + 4].filled || cell[i + 9].filled) {
+						if (cell[i - 5].filled || cell[i - 9].filled) {
 							continue;
 						}
 						cell[i].filled = true;
-						cell[i + 4].filled = true;
-						cell[i + 9].filled = true;
+						cell[i - 5].filled = true;
+						cell[i - 9].filled = true;
 
 						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 4].cellClr = elem[activeElm].elmClr;
-						cell[i + 9].cellClr = elem[activeElm].elmClr;
+						cell[i - 5].cellClr = elem[activeElm].elmClr;
+						cell[i - 9].cellClr = elem[activeElm].elmClr;
 
 						score += 3;
 
-						if (cell[i].filled && cell[i + 4].filled && cell[i + 9].filled) {
+						if (cell[i].filled && cell[i - 5].filled && cell[i - 9].filled) {
 
 							elem[activeElm].exist = false;
 							move[activeElm].state = false;
 						}
-					}//end 1st column
+					}//end 3rd column
 
-					if (cell[i].id >= 4 && cell[i].id <= 8) {
+					if (cell[i].id >= 15 && cell[i].id <= 19) {
 
-						if (cell[i + 5].filled || cell[i + 11].filled) {
+						if (cell[i - 6].filled || cell[i - 11].filled) {
 							continue;
 						}
 						cell[i].filled = true;
-						cell[i + 5].filled = true;
-						cell[i + 11].filled = true;
+						cell[i - 6].filled = true;
+						cell[i - 11].filled = true;
 
 						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 5].cellClr = elem[activeElm].elmClr;
-						cell[i + 11].cellClr = elem[activeElm].elmClr;
+						cell[i - 6].cellClr = elem[activeElm].elmClr;
+						cell[i - 11].cellClr = elem[activeElm].elmClr;
 
 						score += 3;
 
-						if (cell[i].filled && cell[i + 5].filled && cell[i + 11].filled) {
-
-							elem[activeElm].exist = false;
-							move[activeElm].state = false;
-						}
-					}//end of 2nd column
-
-					if ((cell[i].id >= 10 && cell[i].id <= 14)) {
-
-						if (cell[i + 6].filled || cell[i + 12].filled) {
-							continue;
-						}
-						cell[i].filled = true;
-						cell[i + 6].filled = true;
-						cell[i + 12].filled = true;
-
-						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 6].cellClr = elem[activeElm].elmClr;
-						cell[i + 12].cellClr = elem[activeElm].elmClr;
-
-						score += 3;
-
-						if (cell[i].filled && cell[i + 6].filled && cell[i + 12].filled) {
-
-							elem[activeElm].exist = false;
-							move[activeElm].state = false;
-						}
-					}//end of 3rd column
-
-					if ((cell[i].id >= 17 && cell[i].id <= 21)) {
-
-						if (cell[i + 6].filled || cell[i + 11].filled) {
-							continue;
-						}
-						cell[i].filled = true;
-						cell[i + 6].filled = true;
-						cell[i + 11].filled = true;
-
-						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 6].cellClr = elem[activeElm].elmClr;
-						cell[i + 11].cellClr = elem[activeElm].elmClr;
-
-						score += 3;
-
-						if (cell[i].filled && cell[i + 6].filled && cell[i + 11].filled) {
+						if (cell[i].filled && cell[i - 6].filled && cell[i - 11].filled) {
 
 							elem[activeElm].exist = false;
 							move[activeElm].state = false;
 						}
 					}//end of 4th column
 
-					if ((cell[i].id >= 24 && cell[i].id <= 27)) {
+					if ((cell[i].id >= 22 && cell[i].id <= 26)) {
 
-						if (cell[i + 5].filled || cell[i + 9].filled) {
+						if (cell[i - 6].filled || cell[i - 12].filled) {
 							continue;
 						}
 						cell[i].filled = true;
-						cell[i + 5].filled = true;
-						cell[i + 9].filled = true;
+						cell[i - 6].filled = true;
+						cell[i - 12].filled = true;
 
 						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 5].cellClr = elem[activeElm].elmClr;
-						cell[i + 9].cellClr = elem[activeElm].elmClr;
+						cell[i - 6].cellClr = elem[activeElm].elmClr;
+						cell[i - 12].cellClr = elem[activeElm].elmClr;
 
 						score += 3;
 
-						if (cell[i].filled && cell[i + 5].filled && cell[i + 9].filled) {
+						if (cell[i].filled && cell[i - 6].filled && cell[i - 12].filled) {
 
 							elem[activeElm].exist = false;
 							move[activeElm].state = false;
 						}
 					}//end of 5th column
+
+					if ((cell[i].id >= 28 && cell[i].id <= 32)) {
+
+						if (cell[i - 5].filled || cell[i - 11].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i - 5].filled = true;
+						cell[i - 11].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i - 5].cellClr = elem[activeElm].elmClr;
+						cell[i - 11].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i - 5].filled && cell[i - 11].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 6th column
+
+					if ((cell[i].id >= 33 && cell[i].id <= 36)) {
+
+						if (cell[i - 4].filled || cell[i - 9].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i - 4].filled = true;
+						cell[i - 9].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i - 4].cellClr = elem[activeElm].elmClr;
+						cell[i - 9].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i - 4].filled && cell[i - 9].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 7th column
 
 					break;
 
@@ -1313,118 +1313,118 @@ void check(ALLEGRO_EVENT event) {
 
 				case 8: //======================  >>>>> CASE 8 <<<<< =========================
 
-					if ((cell[i].id >= 27 && cell[i].id <= 36) || cell[i].id == 15 || cell[i].id == 21 || cell[i].id == 22) {
+					if ((cell[i].id >= 0 && cell[i].id <= 3) || (cell[i].id >= 30 && cell[i].id <= 36) || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21 || cell[i].id == 27 || cell[i].id == 32) {
 						continue;
 					}
-					if (cell[i].id >= 0 && cell[i].id <= 3) {
+					if (cell[i].id >= 4 && cell[i].id <= 7) {
 
-						if (cell[i + 4].filled || cell[i + 10].filled) {
+						if (cell[i - 4].filled || cell[i + 6].filled) {
 							continue;
 						}
 						cell[i].filled = true;
-						cell[i + 4].filled = true;
-						cell[i + 10].filled = true;
-
-						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 4].cellClr = elem[activeElm].elmClr;
-						cell[i + 10].cellClr = elem[activeElm].elmClr;
-
-						score += 3;
-
-						if (cell[i].filled && cell[i + 4].filled && cell[i + 10].filled) {
-
-							elem[activeElm].exist = false;
-							move[activeElm].state = false;
-						}
-					}//end 1st column
-
-					if (cell[i].id >= 4 && cell[i].id <= 8) {
-
-						if (cell[i + 5].filled || cell[i + 12].filled) {
-							continue;
-						}
-						cell[i].filled = true;
-						cell[i + 5].filled = true;
-						cell[i + 12].filled = true;
-
-						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 5].cellClr = elem[activeElm].elmClr;
-						cell[i + 12].cellClr = elem[activeElm].elmClr;
-
-						score += 3;
-
-						if (cell[i].filled && cell[i + 5].filled && cell[i + 12].filled) {
-
-							elem[activeElm].exist = false;
-							move[activeElm].state = false;
-						}
-					}//end of 2nd column
-
-					if ((cell[i].id >= 9 && cell[i].id <= 14)) {
-
-						if (cell[i + 6].filled || cell[i + 13].filled) {
-							continue;
-						}
-						cell[i].filled = true;
+						cell[i - 4].filled = true;
 						cell[i + 6].filled = true;
-						cell[i + 13].filled = true;
 
 						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i - 4].cellClr = elem[activeElm].elmClr;
 						cell[i + 6].cellClr = elem[activeElm].elmClr;
-						cell[i + 13].cellClr = elem[activeElm].elmClr;
 
 						score += 3;
 
-						if (cell[i].filled && cell[i + 6].filled && cell[i + 13].filled) {
+						if (cell[i].filled && cell[i - 4].filled && cell[i + 6].filled) {
 
 							elem[activeElm].exist = false;
 							move[activeElm].state = false;
 						}
-					}//end of 3rd column
+					}//end 2nd column
 
-					if ((cell[i].id >= 16 && cell[i].id <= 20)) {
+					if (cell[i].id >= 9 && cell[i].id <= 13) {
 
-						if (cell[i + 6].filled || cell[i + 12].filled) {
+						if (cell[i - 5].filled || cell[i + 7].filled) {
 							continue;
 						}
 						cell[i].filled = true;
-						cell[i + 6].filled = true;
-						cell[i + 12].filled = true;
+						cell[i - 5].filled = true;
+						cell[i + 7].filled = true;
 
 						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 6].cellClr = elem[activeElm].elmClr;
-						cell[i + 12].cellClr = elem[activeElm].elmClr;
+						cell[i - 5].cellClr = elem[activeElm].elmClr;
+						cell[i + 7].cellClr = elem[activeElm].elmClr;
 
 						score += 3;
 
-						if (cell[i].filled && cell[i + 6].filled && cell[i + 12].filled) {
+						if (cell[i].filled && cell[i - 5].filled && cell[i + 7].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 3d column
+
+					if ((cell[i].id >= 15 && cell[i].id <= 20)) {
+
+						if (cell[i - 6].filled || cell[i + 7].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i - 6].filled = true;
+						cell[i + 7].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i - 6].cellClr = elem[activeElm].elmClr;
+						cell[i + 7].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i - 6].filled && cell[i + 7].filled) {
 
 							elem[activeElm].exist = false;
 							move[activeElm].state = false;
 						}
 					}//end of 4th column
 
-					if ((cell[i].id >= 23 && cell[i].id <= 26)) {
+					if ((cell[i].id >= 22 && cell[i].id <= 26)) {
 
-						if (cell[i + 5].filled || cell[i + 10].filled) {
+						if (cell[i - 6].filled || cell[i + 6].filled) {
 							continue;
 						}
 						cell[i].filled = true;
-						cell[i + 5].filled = true;
-						cell[i + 10].filled = true;
+						cell[i - 6].filled = true;
+						cell[i + 6].filled = true;
 
 						cell[i].cellClr = elem[activeElm].elmClr;
-						cell[i + 5].cellClr = elem[activeElm].elmClr;
-						cell[i + 10].cellClr = elem[activeElm].elmClr;
+						cell[i - 6].cellClr = elem[activeElm].elmClr;
+						cell[i + 6].cellClr = elem[activeElm].elmClr;
 
 						score += 3;
 
-						if (cell[i].filled && cell[i + 5].filled && cell[i + 10].filled) {
+						if (cell[i].filled && cell[i - 6].filled && cell[i + 6].filled) {
 
 							elem[activeElm].exist = false;
 							move[activeElm].state = false;
 						}
 					}//end of 5th column
+
+					if ((cell[i].id >= 28 && cell[i].id <= 31)) {
+
+						if (cell[i - 5].filled || cell[i + 5].filled) {
+							continue;
+						}
+						cell[i].filled = true;
+						cell[i - 5].filled = true;
+						cell[i + 5].filled = true;
+
+						cell[i].cellClr = elem[activeElm].elmClr;
+						cell[i - 5].cellClr = elem[activeElm].elmClr;
+						cell[i + 5].cellClr = elem[activeElm].elmClr;
+
+						score += 3;
+
+						if (cell[i].filled && cell[i - 5].filled && cell[i + 5].filled) {
+
+							elem[activeElm].exist = false;
+							move[activeElm].state = false;
+						}
+					}//end of 6th column
 
 					break;
 				case 9:
@@ -1442,6 +1442,7 @@ void check(ALLEGRO_EVENT event) {
 			is_good_diag();
 			is_good_inv_diag();
 			cell_update();
+			//check_end();
 		}//
 	}
 	
@@ -1490,7 +1491,7 @@ void is_good_col() {
 
 	//>> ----------------------- Checking The columns ----------------------- <<
 
-	//check the 1st and 7th columns
+	//check the 1st column
 
 	i = 0;
 	if(col[0][i]->filled == true && col[0][++i]->filled == true && col[0][++i]->filled == true && col[0][++i]->filled == true){
@@ -1502,81 +1503,235 @@ void is_good_col() {
 			col[0][i]->filled = false;
 			score++;
 		}
-		
-	}
-	i = 0;
-	if (col[6][i]->filled == true && col[6][++i]->filled == true && col[6][++i]->filled == true && col[6][++i]->filled == true) {
 
-		printf("WOW ! \n");
-		for (i = 0; i < 4; i++) {
+		i = 0;
+		//check the companion diagonal for the 1st column
+		if (diag[0][i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true) { 
+			for (i = 0; i < 3; i++) {
 
-			col[6][i]->filled = false;
-			score++;
+				diag[0][i]->filled = false;
+				score++;
+			}
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
+		i = 0;
+		//check the inverse companion diagonal for the 1st column
+		if (!inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true) {
 
-	//check the 2nd and 6th columns
+			for (i = 0; i < 4; i++) {
+
+				inv_diag[6][i]->filled = false;
+				score++;
+			}
+		}
+	}//end of 1st column
+
+
+	 //check the 2nd column
 	i = 0;
 	if (col[1][i]->filled == true && col[1][++i]->filled == true && col[1][++i]->filled == true && col[1][++i]->filled == true && col[1][++i]->filled == true) {
 
 		printf("WOW ! \n");
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 		for (i = 0; i < 5; i++) {
 
 			col[1][i]->filled = false;
 			score++;
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
-	i = 0;
-	if (col[5][i]->filled == true && col[5][++i]->filled == true && col[5][++i]->filled == true && col[5][++i]->filled == true && col[5][++i]->filled == true) {
 
-		printf("WOW ! \n");
+		i = 0;
+		//check the companion diagonal for the 2nd column
+		if (diag[1][i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && !diag[1][++i]->filled == true && diag[1][++i]->filled == true) {
 
-		for (i = 0; i < 5; i++) {
+			for (i = 0; i < 5; i++) {
 
-			col[5][i]->filled = false;
-			score++;
+				diag[1][i]->filled = false;
+				score++;
+			}
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
+		i = 0;
+		//check the inverse companion diagonal for the 2nd column
+		if (inv_diag[5][i]->filled == true && !inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
 
-	//check the 3rd and 5th columns
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[5][i]->filled = false;
+				score++;
+			}
+		}
+	}//end of 2nd column
+
+
+	 //check the 3rd column
 	i = 0;
 	if (col[2][i]->filled == true && col[2][++i]->filled == true && col[2][++i]->filled == true && col[2][++i]->filled == true && col[2][++i]->filled == true && col[2][++i]->filled == true) {
 
 		printf("WOW ! \n");
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 		for (i = 0; i < 6; i++) {
 
 			col[2][i]->filled = false;
 			score++;
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
-	i = 0;
-	if (col[4][i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true) {
+		i = 0;
+		//check the companion diagonal for the 3rd column
+		if (diag[2][i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && !diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
 
-		printf("WOW ! \n");
-		for (i = 0; i < 6; i++) {
+			for (i = 0; i < 6; i++) {
 
-			col[4][i]->filled = false;
-			score++;
+				diag[2][i]->filled = false;
+				score++;
+			}
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
+		i = 0;
+		//check the inverse companion diagonal for the 3rd column
+		if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && !inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
 
-	//check the 4th columns
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[4][i]->filled = false;
+				score++;
+			}
+		}
+	}//end of 3rd column
+
+
+	 //check the 4th columns
 	i = 0;
 	if (col[3][i]->filled == true && col[3][++i]->filled == true && col[3][++i]->filled == true && col[3][++i]->filled == true && col[3][++i]->filled == true && col[3][++i]->filled == true && col[3][++i]->filled == true) {
 
 		printf("WOW ! \n");
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 		for (i = 0; i < 7; i++) {
 
 			col[3][i]->filled = false;
 			score++;
 		}
+		i = 0;
+		//check the companion diagonal for the 4th column
+		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				diag[3][i]->filled = false;
+				score++;
+			}
+		}
+		i = 0;
+		//check the inverse companion diagonal for the 4th column
+		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				inv_diag[3][i]->filled = false;
+				score++;
+			}
+		}
+	}//end of 4th column
+
+
+	 //check the 5th columns
+	i = 0;
+	if (col[4][i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true) {
+
+		printf("WOW ! \n");
 		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
+		for (i = 0; i < 6; i++) {
+
+			col[4][i]->filled = false;
+			score++;
+		}
+		i = 0;
+		//check the companion diagonal for the 5th column
+		if (diag[4][i]->filled == true && !diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				diag[4][i]->filled = false;
+				score++;
+			}
+		}
+		i = 0;
+		//check the inverse companion diagonal for the 5th column
+		if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && !inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[2][i]->filled = false;
+				score++;
+			}
+		}
+	}//end of 5th column
+
+
+	 //check the 6th column
+	i = 0;
+	if (col[5][i]->filled == true && col[5][++i]->filled == true && col[5][++i]->filled == true && col[5][++i]->filled == true && col[5][++i]->filled == true) {
+
+		printf("WOW ! \n");
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+		for (i = 0; i < 5; i++) {
+
+			col[5][i]->filled = false;
+			score++;
+		}
+		i = 0;
+		//check the companion diagonal for the 2nd column
+		if (diag[5][i]->filled == true && !diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				diag[5][i]->filled = false;
+				score++;
+			}
+		}
+		i = 0;
+		//check the inverse companion diagonal for the 6th column
+		if (inv_diag[1][i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && !inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[1][i]->filled = false;
+				score++;
+			}
+		}
+	}//end of 6th column
+
+
+	 //check the 7th column
+	i = 0;
+	if (col[6][i]->filled == true && col[6][++i]->filled == true && col[6][++i]->filled == true && col[6][++i]->filled == true) {
+
+		printf("WOW ! \n");
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+
+		for (i = 0; i < 4; i++) {
+
+			col[6][i]->filled = false;
+			score++;
+		}
+
+		i = 1;
+		//check the companion diagonal for the 7th column
+		if (diag[6][i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true) {
+
+			for (i = 1; i < 4; i++) {
+
+				diag[6][i]->filled = false;
+				score++;
+			}
+		}
+		i = 0;
+		//check the inverse companion diagonal for the 7th column
+		if (inv_diag[0][i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true && !inv_diag[0][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				inv_diag[0][i]->filled = false;
+				score++;
+			}
+		}
+	}//end of 7th column
+
 
 }
 
@@ -1584,93 +1739,173 @@ void is_good_diag() {
 
 	//>> ----------------------- Checking The diagonals ----------------------- <<
 
-	//check the 1st and 7th diagonals
+	//check the 1st diagonal
 
 	i = 0;
 	if (diag[0][i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true) {
 		
 		printf("WOW ! \n");
-		
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 		for (i = 0; i < 4; i++) {
 
 			diag[0][i]->filled = false;
 			score++;
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
-	i = 0;
-	if (diag[6][i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true) {
+		i = 0;
+		//check the inverse companion diagonal for the 1st column
+		if (!inv_diag[0][i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true) {
 
-		for (i = 0; i < 4; i++) {
+			for (i = 0; i < 4; i++) {
 
-			printf("WOW ! \n");
-			diag[6][i]->filled = false;
-			score++;
+				inv_diag[0][i]->filled = false;
+				score++;
+			}
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
+	}//end of 1st diagonal
+	
 
-	//check the 2nd and 6th diagonals
+	//check the 2nd diagonal
 	i = 0;
 	if (diag[1][i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true) {
 
 		printf("WOW ! \n");
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 		for (i = 0; i < 5; i++) {
 
 			diag[1][i]->filled = false;
 			score++;
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
-	i = 0;
-	if (diag[5][i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true) {
-		
-		printf("WOW ! \n");
-		for (i = 0; i < 5; i++) {
+		i = 0;
+		//check the inverse companion diagonal for the 2nd column
+		if (inv_diag[1][i]->filled == true && !inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
 
-			diag[5][i]->filled = false;
-			score++;
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[1][i]->filled = false;
+				score++;
+			}
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
+	}//end of 2nd diagonal
+	
 
-	//check the 3rd and 5th diagonals
+	//check the 3rd diagonal
 	i = 0;
 	if (diag[2][i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
 
 		printf("WOW ! \n");
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 		for (i = 0; i < 6; i++) {
 
 			diag[2][i]->filled = false;
 			score++;
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
-	i = 0;
-	if (diag[4][i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
+		i = 0;
+		//check the inverse companion diagonal for the 3rd column
+		if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && !inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
 
-		printf("WOW ! \n");
-		for (i = 0; i < 6; i++) {
+			for (i = 0; i < 6; i++) {
 
-			diag[4][i]->filled = false;
-			score++;
+				inv_diag[2][i]->filled = false;
+				score++;
+			}
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
+	}//end of 3rd diagonal
+
 
 	//check the 4th diagonal
 	i = 0;
 	if (diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
 
 		printf("WOW ! \n");
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 		for (i = 0; i < 7; i++) {
 
 			diag[3][i]->filled = false;
 			score++;
 		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
+		i = 0;
+		//check the inverse companion diagonal for the 4th column
+		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
 
+			for (i = 0; i < 7; i++) {
+
+				inv_diag[3][i]->filled = false;
+				score++;
+			}
+		}
+	}//end of 4th diagonal
+
+
+	//check the 5th diagonal
+	i = 0;
+	if (diag[4][i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
+
+		printf("WOW ! \n");
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+		for (i = 0; i < 6; i++) {
+
+			diag[4][i]->filled = false;
+			score++;
+		}
+		i = 0;
+		//check the inverse companion diagonal for the 5th column
+		if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && !inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[4][i]->filled = false;
+				score++;
+			}
+		}
+	}//end of 5th diagonal
+
+
+	//check the 6th diagonal
+	i = 0;
+	if (diag[5][i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true) {
+
+		printf("WOW ! \n");
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+		for (i = 0; i < 5; i++) {
+
+			diag[5][i]->filled = false;
+			score++;
+		}
+		i = 0;
+		//check the inverse companion diagonal for the 6th column
+		if (inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && !inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[5][i]->filled = false;
+				score++;
+			}
+		}
+	}//end of 6th diagonal
+
+
+	//check the 7th diagonal
+	i = 0;
+	if (diag[6][i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true) {
+
+		for (i = 0; i < 4; i++) {
+
+			printf("WOW ! \n");
+			al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+			diag[6][i]->filled = false;
+			score++;
+		}
+		i = 0;
+		//check the inverse companion diagonal for the 7th column
+		if (inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && !inv_diag[6][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				inv_diag[6][i]->filled = false;
+				score++;
+			}
+		}
+	}//end of 7th diagonal
 }
 
 void is_good_inv_diag() {
@@ -1719,6 +1954,7 @@ void is_good_inv_diag() {
 
 		printf("WOW ! \n");
 		for (i = 0; i < 5; i++) {
+
 			inv_diag[5][i]->filled = false;
 			score++;
 		}
@@ -1835,18 +2071,17 @@ void game_loop(ALLEGRO_EVENT event) {
 
 	al_start_timer(timer);
 
-
 	while (!done) {
 
 		al_wait_for_event(queue, &event);
 		//al_play_sample(bgSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, 0);
 
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-			done = true;
+			//done = true;
 		}
 		
 		if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-			done = true;
+			//done = true;
 		}
 		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 		
@@ -1879,7 +2114,7 @@ void game_loop(ALLEGRO_EVENT event) {
 					printf("1stMove[%d].state =  %d\n", i, move[i].state);
 					printf("click %d\n", i);
 					printf("activEL is  %d\n", activeElm);
-					printf("exist[%d] = %d", i, elem[i].exist);
+					printf("exist[%d] = %d\n", i, elem[i].exist);
 				}
 				else if ((event.mouse.button & 1) && (elem[i].bitmap == elmBitmap[3] || elem[i].bitmap == elmBitmap[8]) && (event.mouse.x >= elem[i].x + 30) && (event.mouse.x <= elem[i].x + 2 * cellWidth) && (event.mouse.y >= elem[i].y) && (event.mouse.y <= elem[i].y + cellHeight)) {
 
@@ -1912,7 +2147,9 @@ void game_loop(ALLEGRO_EVENT event) {
 				}
 			}
 
-			check(event);	
+			check(event);
+			check_end();
+			//check_end2();
 		}
 		draw();	
 	}
@@ -2073,12 +2310,25 @@ void game_over(ALLEGRO_EVENT event) {
 		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 
 			if ((event.mouse.button & 1) && (event.mouse.x >= 204) && (event.mouse.x <= 303) && (event.mouse.y >= 370) && (event.mouse.y <= 408)) {
+				score = 0;
+
+				elem[0].exist = false;
+				elem[1].exist = false;
+				elem[2].exist = false;
+
+				for (i = 0; i < 37; i++) {
+					cell[i].filled = false;
+				}
+				cell_update();
 				printf("retry\n");
+				game_loop(event);
 
 			}
-			else if ((event.mouse.button & 1) && (event.mouse.x >= 450) && (event.mouse.x <= 485) && (event.mouse.y >= 214) && (event.mouse.y <= 291)) {
+			else if ((event.mouse.button & 1) && (event.mouse.x >= 218) && (event.mouse.x <= 290) && (event.mouse.y >= 450) && (event.mouse.y <= 485)) {
 
 				printf("Quit\n");
+				shutdown();
+				exit(-1);
 			}
 		}
 		al_flip_display();
@@ -2123,3 +2373,134 @@ void menu(ALLEGRO_EVENT event) {
 
 
  }
+
+
+void check_end() {
+
+	for (i = 0; i < 9; i++) {
+		counter[i] = 0;
+	}
+
+	for (i = 0; i < 37; i++) {
+		//1C01 case
+		if (!cell[i].filled) {
+			counter[0]++;
+		}
+		//2C01 case
+		if (!cell[i].filled && !cell[i + 1].filled) {
+			if (cell[i].id == 3 || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21 || cell[i].id == 27 || cell[i].id == 32 || cell[i].id == 36)
+				continue;
+
+			counter[1]++;
+		}
+		//2C02 case
+		if ((!cell[i].filled && !cell[i + 5].filled) || (!cell[i].filled && !cell[i + 6].filled) || (!cell[i].filled && !cell[i + 7].filled)) {
+			if ((cell[i].id >= 32 && cell[i].id <= 36) || cell[i].id == 21 || cell[i].id == 27)
+				continue;
+
+			counter[2]++;
+		}
+		//2C03 case
+		if ((!cell[i].filled && !cell[i - 4].filled) || (!cell[i].filled && !cell[i - 5].filled) || (!cell[i].filled && !cell[i - 6].filled)) {
+			if ((cell[i].id >= 0 && cell[i].id <= 3) || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21)
+				continue;
+
+			counter[3]++;
+		}
+		//3C01 case
+		if (!cell[i].filled && !cell[i + 1].filled && !cell[i + 2].filled) {
+			if (cell[i].id == 2 || cell[i].id == 3 || cell[i].id == 7 || cell[i].id == 8 || cell[i].id == 13 || cell[i].id == 14 || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 26 || cell[i].id == 27 || cell[i].id == 31 || cell[i].id == 32 || cell[i].id == 35 || cell[i].id == 36)
+				continue;
+
+			counter[4]++;
+		}
+		//3C02 case
+		if ((!cell[i].filled && !cell[i + 5].filled && !cell[i + 11].filled) || (!cell[i].filled && !cell[i + 6].filled && !cell[i + 13].filled) || (!cell[i].filled && !cell[i + 7].filled && !cell[i + 14].filled) || (!cell[i].filled && !cell[i + 7].filled && !cell[i + 13].filled) || (!cell[i].filled && !cell[i + 6].filled && !cell[i + 11].filled)) {
+			if ((cell[i].id >= 26 && cell[i].id <= 36) || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 14)
+				continue;
+
+			counter[5]++;
+		}
+		//3C03 case
+		if ((!cell[i].filled && !cell[i - 5].filled && !cell[i - 9].filled) || (!cell[i].filled && !cell[i - 6].filled && !cell[i - 11].filled) || (!cell[i].filled && !cell[i - 6].filled && !cell[i - 12].filled) || (!cell[i].filled && !cell[i - 5].filled && !cell[i - 11].filled) || (!cell[i].filled && !cell[i - 4].filled && !cell[i - 9].filled)) {
+			if ((cell[i].id >= 0 && cell[i].id <= 8) || cell[i].id == 13 || cell[i].id == 14 || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 27)
+				continue;
+
+			counter[6]++;
+		}
+		//3C04 case
+		if ((!cell[i].filled && !cell[i + 5].filled && !cell[i + 10].filled) || (!cell[i].filled && !cell[i + 6].filled && !cell[i + 12].filled) || (!cell[i].filled && !cell[i + 7].filled && !cell[i + 13].filled) || (!cell[i].filled && !cell[i + 7].filled && !cell[i + 12].filled) || (!cell[i].filled && !cell[i + 6].filled && !cell[i + 10].filled)) {
+			if ((cell[i].id >= 27 && cell[i].id <= 36) || cell[i].id == 15 || cell[i].id == 21 || cell[i].id == 22)
+				continue;
+
+			counter[7]++;
+		}
+		//3C05 case
+		if ((!cell[i].filled && !cell[i - 4].filled && !cell[i + 6].filled) || (!cell[i].filled && !cell[i - 5].filled && !cell[i + 7].filled) || (!cell[i].filled && !cell[i - 6].filled && !cell[i + 7].filled) || (!cell[i].filled && !cell[i - 6].filled && !cell[i + 6].filled) || (!cell[i].filled && !cell[i - 5].filled && !cell[i + 5].filled)) {
+			if ((cell[i].id >= 0 && cell[i].id <= 3) || (cell[i].id >= 32 && cell[i].id <= 36) || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21 || cell[i].id == 27)
+				continue;
+
+			counter[8]++;
+		}
+	}
+
+	for (i = 0; i < 3; i++) {
+
+		for (j = 0; j < 9; j++) {
+
+			if (elem[i].id == j && counter[j] == 0) {
+				elem[i].badElem = true;
+			}
+		}
+	}
+
+	for (i = 0; i < 9; i++) {
+		printf("counter[%d] = %d\n", i, counter[i]);
+	}
+	for (i = 0; i < 3; i++) {
+		printf("elem[%d].badElem = %d\n", i, elem[i].badElem);
+	}
+
+	j = 0;
+	if ((elem[j].badElem && elem[++j].badElem && elem[++j].badElem) || (elem[0].badElem && !elem[1].exist && !elem[2].exist) || (elem[1].badElem && !elem[0].exist && !elem[2].exist) || (elem[2].badElem && !elem[0].exist && !elem[1].exist)) {
+		printf("not true\n");
+		game_over(event);
+	}
+	else {
+		for (j = 0; j < 3; j++) {
+
+			elem[j].badElem == false;
+			
+		}
+		printf("all false\n");
+	}
+
+}
+
+//////////////////////
+
+void check_end2() {
+
+	for (i = 0; i < 37; i++) {
+		//1C01 case
+		if (!cell[i].filled) {
+			counter[0]++;
+		}
+		//2C01 case
+		if (!cell[i].filled && !cell[i + 1].filled) {
+			if (cell[i].id == 3 || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21 || cell[i].id == 27 || cell[i].id == 32 || cell[i].id == 36)
+				continue;
+
+			counter[1]++;
+		}
+		//3C01 case
+		if (!cell[i].filled && !cell[i + 1].filled && !cell[i + 2].filled) {
+			if (cell[i].id == 2 || cell[i].id == 3 || cell[i].id == 7 || cell[i].id == 8 || cell[i].id == 13 || cell[i].id == 14 || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 26 || cell[i].id == 27 || cell[i].id == 31 || cell[i].id == 32 || cell[i].id == 35 || cell[i].id == 36)
+				continue;
+
+			counter[4]++;
+		}
+	}
+	//check the columns here
+}
+			
