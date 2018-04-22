@@ -107,6 +107,7 @@ ALLEGRO_COLOR randColr[6];
 ALLEGRO_COLOR tempColr;
 ALLEGRO_COLOR background_color;
 ALLEGRO_FONT *font;
+ALLEGRO_FONT *font2;
 ALLEGRO_BITMAP *bitmap;
 ALLEGRO_BITMAP *bitmap2;
 ALLEGRO_BITMAP *hexagonal;
@@ -137,7 +138,7 @@ int c1, c2, c3;
 
 int main() {
 
-	
+
 	init();
 	Home(event);
 
@@ -212,6 +213,7 @@ void init() {
 	al_init_acodec_addon();
 
 	font = al_load_ttf_font("pirulen rg.ttf", 22, 0);
+	font2 = al_load_ttf_font("impact.ttf", 35, 0);
 
 	randColr[0] = al_map_rgb(244, 47, 200);
 	randColr[1] = al_map_rgb(212, 169, 51);
@@ -1489,10 +1491,9 @@ void check_inv_diagons() {
 
 void is_good_col() {
 
-	//>> ----------------------- Checking The columns ----------------------- <<
+	//>>>> ====================== Checking The columns ========================= <<<<
 
-	//check the 1st column
-
+	//>> -------check the 1st column and its companions ----------- <<
 	i = 0;
 	if(col[0][i]->filled == true && col[0][++i]->filled == true && col[0][++i]->filled == true && col[0][++i]->filled == true){
 
@@ -1505,16 +1506,52 @@ void is_good_col() {
 		}
 
 		i = 0;
-		//check the companion diagonal for the 1st column
-		if (diag[0][i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true) { 
-			for (i = 0; i < 3; i++) {
+		//---------------check the companion diagonals for the 1st column
+		//check the 1st diagonal
+		if (diag[0][i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true && !diag[0][++i]->filled == true) {
+			for (i = 0; i < 4; i++) {
 
 				diag[0][i]->filled = false;
 				score++;
 			}
 		}
+		//check the 2nd diagonal
 		i = 0;
-		//check the inverse companion diagonal for the 1st column
+		if (diag[1][i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && !diag[1][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				diag[1][i]->filled = false;
+				score++;
+			}
+		}
+			i = 0;
+		 //check the 3rd diagonal
+		i = 0;
+		if (diag[2][i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && !diag[2][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				diag[2][i]->filled = false;
+				score++;
+			}
+		}
+			i = 0;
+		 //check the 4th diagonal
+		i = 0;
+		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				diag[3][i]->filled = false;
+				score++;
+			}
+		}
+			
+		i = 0;
+
+		//--------------check the inverse companion diagonals for the 1st column
+		//check the 3rd inv_diagonal
 		if (!inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true) {
 
 			for (i = 0; i < 4; i++) {
@@ -1523,10 +1560,42 @@ void is_good_col() {
 				score++;
 			}
 		}
+		//check the 4th inv_diagonal
+		i = 0;
+		if (!inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				inv_diag[3][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 5th inv_diagonal
+		i = 0;
+		if (!inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[4][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 6th inv_diagonal
+		i = 0;
+		if (!inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[5][i]->filled = false;
+				score++;
+			}
+		}
 	}//end of 1st column
 
 
-	 //check the 2nd column
+	 //>> -------check the 2nd column and its companions ----------- <<
 	i = 0;
 	if (col[1][i]->filled == true && col[1][++i]->filled == true && col[1][++i]->filled == true && col[1][++i]->filled == true && col[1][++i]->filled == true) {
 
@@ -1537,9 +1606,21 @@ void is_good_col() {
 			col[1][i]->filled = false;
 			score++;
 		}
-
+		//---------------check the companion diagonals for the 2nd column
+		//check the 1st diagonal
 		i = 0;
-		//check the companion diagonal for the 2nd column
+		if (diag[0][i]->filled == true && diag[0][++i]->filled == true && !diag[0][++i]->filled == true && diag[0][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				diag[0][i]->filled = false;
+				score++;
+			}
+		}
+		i = 0;
+
+		//check the 2nd diagonal
+		i = 0;
 		if (diag[1][i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && !diag[1][++i]->filled == true && diag[1][++i]->filled == true) {
 
 			for (i = 0; i < 5; i++) {
@@ -1547,9 +1628,80 @@ void is_good_col() {
 				diag[1][i]->filled = false;
 				score++;
 			}
-		}
+		}//end of 2nd diagonal
+
+
+		 //check the 3rd diagonal
 		i = 0;
-		//check the inverse companion diagonal for the 2nd column
+		if (diag[2][i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && !diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				diag[2][i]->filled = false;
+				score++;
+			}
+		}//end of 3rd diagonal
+
+
+		 //check the 4th diagonal
+		i = 0;
+		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				diag[3][i]->filled = false;
+				score++;
+			}
+		}//end of 4th diagonal
+
+
+		 //check the 5th diagonal
+		i = 0;
+		if (diag[4][i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && !diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				diag[4][i]->filled = false;
+				score++;
+			}
+		}//end of 5th diagonal
+
+		//--------------check the inverse companion diagonals for the 2nd column
+		//check the 3rd inv_diagonal
+		i = 0;
+		if (!inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[2][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 4th inv_diagonal
+		i = 0;
+		if (inv_diag[3][i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				inv_diag[3][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 5th inv_diagonal
+		i = 0;
+		if (inv_diag[4][i]->filled == true && !inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[4][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 6th inv_diagonal
+		i = 0;
 		if (inv_diag[5][i]->filled == true && !inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
 
 			for (i = 0; i < 5; i++) {
@@ -1558,10 +1710,21 @@ void is_good_col() {
 				score++;
 			}
 		}
-	}//end of 2nd column
+
+		//check the 7th inv_diagonal
+		i = 0;
+		if (inv_diag[6][i]->filled == true && !inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				inv_diag[6][i]->filled = false;
+				score++;
+			}
+		}
+	}//---------end of 2nd column
 
 
-	 //check the 3rd column
+	 //>> -------check the 3rd column and its companions ----------- <<
 	i = 0;
 	if (col[2][i]->filled == true && col[2][++i]->filled == true && col[2][++i]->filled == true && col[2][++i]->filled == true && col[2][++i]->filled == true && col[2][++i]->filled == true) {
 
@@ -1573,7 +1736,33 @@ void is_good_col() {
 			score++;
 		}
 		i = 0;
-		//check the companion diagonal for the 3rd column
+		//-------------check the companion diagonals for the 3rd column
+		//check the 1st diagonal
+		i = 0;
+		if (diag[0][i]->filled == true && !diag[0][++i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				diag[0][i]->filled = false;
+				score++;
+			}
+		}//end of 1st diagonal
+
+
+		 //check the 2nd diagonal
+		i = 0;
+		if (diag[1][i]->filled == true && diag[1][++i]->filled == true && !diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				diag[1][i]->filled = false;
+				score++;
+			}
+		}//end of 2nd diagonal
+
+
+		 //check the 3rd diagonal
+		i = 0;
 		if (diag[2][i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && !diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
 
 			for (i = 0; i < 6; i++) {
@@ -1581,9 +1770,83 @@ void is_good_col() {
 				diag[2][i]->filled = false;
 				score++;
 			}
-		}
+		}//end of 3rd diagonal
+
+
+		 //check the 4th diagonal
 		i = 0;
-		//check the inverse companion diagonal for the 3rd column
+		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				diag[3][i]->filled = false;
+				score++;
+			}
+			i = 0;
+		}//end of 4th diagonal
+
+
+		 //check the 5th diagonal
+		i = 0;
+		if (diag[4][i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && !diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				diag[4][i]->filled = false;
+				score++;
+			}
+		}//end of 5th diagonal
+
+
+		 //check the 6th diagonal
+		i = 0;
+		if (diag[5][i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && !diag[5][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				diag[5][i]->filled = false;
+				score++;
+			}
+		}//end of 6th diagonal
+
+
+		i = 0;
+		//------------check the inverse companion diagonals for the 3rd column
+		//check the 2nd inv_diagonal
+		i = 0;
+		if (!inv_diag[1][i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[1][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 3rd inv_diagonal
+		i = 0;
+		if (inv_diag[2][i]->filled == true && !inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[2][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 4th inv_diagonal
+		i = 0;
+		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				inv_diag[3][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 5th inv_diagonal
+		i = 0;
 		if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && !inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
 
 			for (i = 0; i < 6; i++) {
@@ -1592,10 +1855,32 @@ void is_good_col() {
 				score++;
 			}
 		}
+
+		//check the 6th inv_diagonal
+		i = 0;
+		if (inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && !inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[5][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 7th inv_diagonal
+		i = 0;
+		if (inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && !inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				inv_diag[6][i]->filled = false;
+				score++;
+			}
+		}
 	}//end of 3rd column
 
 
-	 //check the 4th columns
+	 //>> -------check the 4th column and its companions ----------- <<
 	i = 0;
 	if (col[3][i]->filled == true && col[3][++i]->filled == true && col[3][++i]->filled == true && col[3][++i]->filled == true && col[3][++i]->filled == true && col[3][++i]->filled == true && col[3][++i]->filled == true) {
 
@@ -1606,8 +1891,43 @@ void is_good_col() {
 			col[3][i]->filled = false;
 			score++;
 		}
+
+		//--------------check the companion diagonals for the 4th column
+		//check the 1st diagonal
 		i = 0;
-		//check the companion diagonal for the 4th column
+		if (!diag[0][i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				diag[0][i]->filled = false;
+				score++;
+			}
+		}
+
+		 //check the 2nd diagonal
+		i = 0;
+		if (diag[1][i]->filled == true && !diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				diag[1][i]->filled = false;
+				score++;
+			}
+		}
+
+		 //check the 3rd diagonal
+		i = 0;
+		if (diag[2][i]->filled == true && diag[2][++i]->filled == true && !diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				diag[2][i]->filled = false;
+				score++;
+			}
+		}
+
+		 //check the 4th diagonal
+		i = 0;
 		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
 
 			for (i = 0; i < 7; i++) {
@@ -1616,8 +1936,76 @@ void is_good_col() {
 				score++;
 			}
 		}
+
+		 //check the 5th diagonal
 		i = 0;
-		//check the inverse companion diagonal for the 4th column
+		if (diag[4][i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && !diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				diag[4][i]->filled = false;
+				score++;
+			}
+		}
+
+		 //check the 6th diagonal
+		i = 0;
+		if (diag[5][i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && !diag[5][++i]->filled == true && diag[5][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				diag[5][i]->filled = false;
+				score++;
+			}
+		}
+
+		 //check the 7th diagonal
+		i = 0;
+		if (diag[6][i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true && !diag[6][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				diag[6][i]->filled = false;
+				score++;
+			}
+		}
+
+		//--------------check the inverse companion diagonals for the 4th column
+		//check the 1st inv_diagonal
+		i = 0;
+		if (!inv_diag[0][i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				inv_diag[0][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 2nd inv_diagonal
+		i = 0;
+		if (inv_diag[1][i]->filled == true && !inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[1][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 3rd inv_diagonal
+		i = 0;
+		if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && !inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[2][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 4th inv_diagonal
+		i = 0;
 		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
 
 			for (i = 0; i < 7; i++) {
@@ -1626,10 +2014,43 @@ void is_good_col() {
 				score++;
 			}
 		}
-	}//end of 4th column
+
+		//check the 5th inv_diagonal
+		i = 0;
+		if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && !inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[4][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 6th inv_diagonal
+		i = 0;
+		if (inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && !inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[5][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 7th inv_diagonal
+		i = 0;
+		if (inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && !inv_diag[6][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				inv_diag[6][i]->filled = false;
+				score++;
+			}
+		}
+	}//-------------end of 4th column
 
 
-	 //check the 5th columns
+	 //>> -------check the 5th column and its companions ----------- <<
 	i = 0;
 	if (col[4][i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true && col[4][++i]->filled == true) {
 
@@ -1641,17 +2062,104 @@ void is_good_col() {
 			score++;
 		}
 		i = 0;
-		//check the companion diagonal for the 5th column
-		if (diag[4][i]->filled == true && !diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
+
+		//--------------check the companion diagonal for the 5th column
+		//check the 2nd diagonal
+		i = 0;
+		if (!diag[1][i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				diag[1][i]->filled = false;
+				score++;
+			}
+		}//end of 2nd diagonal
+
+
+		 //check the 3rd diagonal
+		i = 0;
+		if (diag[2][i]->filled == true && !diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				diag[2][i]->filled = false;
+				score++;
+			}
+		}//end of 3rd diagonal
+
+
+		 //check the 4th diagonal
+		i = 0;
+		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				diag[3][i]->filled = false;
+				score++;
+			}
+		}//end of 4th diagonal
+
+
+		 //check the 5th diagonal
+		i = 0;
+		if (diag[4][i]->filled == true && diag[4][++i]->filled == true && !diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
 
 			for (i = 0; i < 6; i++) {
 
 				diag[4][i]->filled = false;
 				score++;
 			}
-		}
+		}//end of 5th diagonal
+
+
+		 //check the 6th diagonal
 		i = 0;
-		//check the inverse companion diagonal for the 5th column
+		if (diag[5][i]->filled == true && diag[5][++i]->filled == true && !diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				diag[5][i]->filled = false;
+				score++;
+			}
+		}//end of 6th diagonal
+
+
+		 //check the 7th diagonal
+		i = 0;
+		if (diag[6][i]->filled == true && diag[6][++i]->filled == true && !diag[6][++i]->filled == true && diag[6][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				diag[6][i]->filled = false;
+				score++;
+			}
+		}//end of 7th diagonal
+
+		//--------------check the inverse companion diagonal for the 5th column
+		//check the 1st inv_diagonal
+		i = 0;
+		if (inv_diag[0][i]->filled == true && !inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				inv_diag[0][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 2nd inv_diagonal
+		i = 0;
+		if (inv_diag[1][i]->filled == true && inv_diag[1][++i]->filled == true && !inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[1][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 3rd inv_diagonal
+		i = 0;
 		if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && !inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
 
 			for (i = 0; i < 6; i++) {
@@ -1660,10 +2168,43 @@ void is_good_col() {
 				score++;
 			}
 		}
-	}//end of 5th column
+
+		//check the 4th inv_diagonal
+		i = 0;
+		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				inv_diag[3][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 5th inv_diagonal
+		i = 0;
+		if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && !inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[4][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 6th inv_diagonal
+		i = 0;
+		if (inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && !inv_diag[5][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[5][i]->filled = false;
+				score++;
+			}
+		}
+	}//---------end of 5th column
 
 
-	 //check the 6th column
+	 //>> -------check the 6th column and its companions ----------- <<
 	i = 0;
 	if (col[5][i]->filled == true && col[5][++i]->filled == true && col[5][++i]->filled == true && col[5][++i]->filled == true && col[5][++i]->filled == true) {
 
@@ -1675,7 +2216,42 @@ void is_good_col() {
 			score++;
 		}
 		i = 0;
-		//check the companion diagonal for the 2nd column
+		//---------------check the companion diagonals for the 6th column
+		//check the 3rd diagonal
+		i = 0;
+		if (!diag[2][i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				diag[2][i]->filled = false;
+				score++;
+			}
+		}
+
+		 //check the 4th diagonal
+		i = 0;
+		if (diag[3][i]->filled == true && !diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				diag[3][i]->filled = false;
+				score++;
+			}
+		}
+
+		 //check the 5th diagonal
+		i = 0;
+		if (diag[4][i]->filled == true && !diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				diag[4][i]->filled = false;
+				score++;
+			}
+		}
+
+		 //check the 6th diagonal
+		i = 0;
 		if (diag[5][i]->filled == true && !diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true) {
 
 			for (i = 0; i < 5; i++) {
@@ -1684,8 +2260,32 @@ void is_good_col() {
 				score++;
 			}
 		}
+
+		 //check the 7th diagonal
 		i = 0;
-		//check the inverse companion diagonal for the 6th column
+		if (diag[6][i]->filled == true && !diag[6][++i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				diag[6][i]->filled = false;
+				score++;
+			}
+		}
+
+		//---------------check the inverse companion diagonals for the 6th column
+		//check the 1st inv_diagonal
+		i = 0;
+		if (inv_diag[0][i]->filled == true && inv_diag[0][++i]->filled == true && !inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
+
+				inv_diag[0][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 2nd inv_diagonal
+		i = 0;
 		if (inv_diag[1][i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && !inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
 
 			for (i = 0; i < 5; i++) {
@@ -1694,10 +2294,43 @@ void is_good_col() {
 				score++;
 			}
 		}
+
+		//check the 3rd inv_diagonal
+		i = 0;
+		if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && !inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[2][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 4th inv_diagonal
+		i = 0;
+		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				inv_diag[3][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 5th inv_diagonal
+		i = 0;
+		if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && !inv_diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[4][i]->filled = false;
+				score++;
+			}
+		}
 	}//end of 6th column
 
 
-	 //check the 7th column
+	 //>> -------check the 7th column and its companions ----------- <<
 	i = 0;
 	if (col[6][i]->filled == true && col[6][++i]->filled == true && col[6][++i]->filled == true && col[6][++i]->filled == true) {
 
@@ -1710,18 +2343,56 @@ void is_good_col() {
 			score++;
 		}
 
-		i = 1;
-		//check the companion diagonal for the 7th column
-		if (diag[6][i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true) {
+		i = 0;
+		//--------------check the companion diagonal for the 7th column
+		//check the 4th diagonal
+		i = 0;
+		if (!diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
 
-			for (i = 1; i < 4; i++) {
+			for (i = 0; i < 7; i++) {
+
+				diag[3][i]->filled = false;
+				score++;
+			}
+		}
+
+		 //check the 5th diagonal
+		i = 0;
+		if (!diag[4][i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				diag[4][i]->filled = false;
+				score++;
+			}
+		}
+
+		 //check the 6th diagonal
+		i = 0;
+		if (!diag[5][i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				diag[5][i]->filled = false;
+				score++;
+			}
+		}
+
+		 //check the 7th diagonal
+		i = 0;
+		if (!diag[6][i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true) {
+
+			for (i = 0; i < 4; i++) {
 
 				diag[6][i]->filled = false;
 				score++;
 			}
-		}
+		}//end of 7th diagonal
+
+		//--------------check the inverse companion diagonal for the 7th column
+		//check the 1st inv_diagonal
+
 		i = 0;
-		//check the inverse companion diagonal for the 7th column
 		if (inv_diag[0][i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true && !inv_diag[0][++i]->filled == true) {
 
 			for (i = 0; i < 4; i++) {
@@ -1730,8 +2401,41 @@ void is_good_col() {
 				score++;
 			}
 		}
-	}//end of 7th column
 
+		//check the 2nd inv_diagonal
+		i = 0;
+		if (inv_diag[1][i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && !inv_diag[1][++i]->filled == true) {
+
+			for (i = 0; i < 5; i++) {
+
+				inv_diag[1][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 3rd inv_diagonal
+		i = 0;
+		if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && !inv_diag[2][++i]->filled == true) {
+
+			for (i = 0; i < 6; i++) {
+
+				inv_diag[2][i]->filled = false;
+				score++;
+			}
+		}
+
+		//check the 4th inv_diagonal
+		i = 0;
+		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true) {
+
+			for (i = 0; i < 7; i++) {
+
+				inv_diag[3][i]->filled = false;
+				score++;
+			}
+		}
+
+	}//end of 7th column
 
 }
 
@@ -1752,7 +2456,7 @@ void is_good_diag() {
 			score++;
 		}
 		i = 0;
-		//check the inverse companion diagonal for the 1st column
+		//check the inverse companion diagonal for the 1st diagonal
 		if (!inv_diag[0][i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true) {
 
 			for (i = 0; i < 4; i++) {
@@ -1776,7 +2480,7 @@ void is_good_diag() {
 			score++;
 		}
 		i = 0;
-		//check the inverse companion diagonal for the 2nd column
+		//check the inverse companion diagonal for the 2nd diagonal
 		if (inv_diag[1][i]->filled == true && !inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
 
 			for (i = 0; i < 5; i++) {
@@ -1800,7 +2504,7 @@ void is_good_diag() {
 			score++;
 		}
 		i = 0;
-		//check the inverse companion diagonal for the 3rd column
+		//check the inverse companion diagonal for the 3rd diagonal
 		if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && !inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
 
 			for (i = 0; i < 6; i++) {
@@ -1824,7 +2528,7 @@ void is_good_diag() {
 			score++;
 		}
 		i = 0;
-		//check the inverse companion diagonal for the 4th column
+		//check the inverse companion diagonal for the 4th diagonal
 		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
 
 			for (i = 0; i < 7; i++) {
@@ -1848,7 +2552,7 @@ void is_good_diag() {
 			score++;
 		}
 		i = 0;
-		//check the inverse companion diagonal for the 5th column
+		//check the inverse companion diagonal for the 5th diagonal
 		if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && !inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
 
 			for (i = 0; i < 6; i++) {
@@ -1872,7 +2576,7 @@ void is_good_diag() {
 			score++;
 		}
 		i = 0;
-		//check the inverse companion diagonal for the 6th column
+		//check the inverse companion diagonal for the 6th diagonal
 		if (inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && !inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
 
 			for (i = 0; i < 5; i++) {
@@ -1896,7 +2600,7 @@ void is_good_diag() {
 			score++;
 		}
 		i = 0;
-		//check the inverse companion diagonal for the 7th column
+		//check the inverse companion diagonal for the 7th diagonal
 		if (inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && !inv_diag[6][++i]->filled == true) {
 
 			for (i = 0; i < 4; i++) {
@@ -1912,7 +2616,7 @@ void is_good_inv_diag() {
 
 	//>> ----------------------- Checking The inv_diagonals ----------------------- <<
 
-	//check the 1st and 7th inv_diagonals
+	//check the 1st inv_diagonal
 
 	i = 0;
 	if (inv_diag[0][i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true) {
@@ -1925,19 +2629,8 @@ void is_good_inv_diag() {
 		}
 		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 	}
-	i = 0;
-	if (inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true) {
 
-		printf("WOW ! \n");
-		for (i = 0; i < 4; i++) {
-			
-			inv_diag[6][i]->filled = false;
-			score++;
-		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
-
-	//check the 2nd and 6th inv_diagonals
+	//check the 2nd inv_diagonal
 	i = 0;
 	if (inv_diag[1][i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
 
@@ -1949,19 +2642,8 @@ void is_good_inv_diag() {
 		}
 		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 	}
-	i = 0;
-	if (inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
 
-		printf("WOW ! \n");
-		for (i = 0; i < 5; i++) {
-
-			inv_diag[5][i]->filled = false;
-			score++;
-		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
-
-	//check the 3rd and 5th inv_diagonals
+	//check the 3rd inv_diagonal
 	i = 0;
 	if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
 
@@ -1969,17 +2651,6 @@ void is_good_inv_diag() {
 		for (i = 0; i < 6; i++) {
 
 			inv_diag[2][i]->filled = false;
-			score++;
-		}
-		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	}
-	i = 0;
-	if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
-
-		printf("WOW ! \n");
-		for (i = 0; i < 6; i++) {
-
-			inv_diag[4][i]->filled = false;
 			score++;
 		}
 		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
@@ -1998,6 +2669,44 @@ void is_good_inv_diag() {
 		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 	}
 
+	//check the 5th inv_diagonal
+	i = 0;
+	if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
+
+		printf("WOW ! \n");
+		for (i = 0; i < 6; i++) {
+
+			inv_diag[4][i]->filled = false;
+			score++;
+		}
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+	}
+
+	//check the 6th inv_diagonal
+	i = 0;
+	if (inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
+
+		printf("WOW ! \n");
+		for (i = 0; i < 5; i++) {
+
+			inv_diag[5][i]->filled = false;
+			score++;
+		}
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+	}
+
+	//check the 7th inv_diagonal
+	i = 0;
+	if (inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true) {
+
+		printf("WOW ! \n");
+		for (i = 0; i < 4; i++) {
+
+			inv_diag[6][i]->filled = false;
+			score++;
+		}
+		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+	}
 }
 
 void fill_all() {
@@ -2293,10 +3002,12 @@ void rand_elem() {
 
 void game_over(ALLEGRO_EVENT event) {
 
-
+	
 	al_play_sample(endSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 	gameOver = al_clone_bitmap(gameOver);
 	al_draw_bitmap(gameOver, 0, 0, NULL);
+	al_draw_textf(font2, al_map_rgb(106, 222, 103), 335, 278, NULL, "%d", score);
+
 	lost = true;
 	while (lost)
 	{

@@ -1,0 +1,1 @@
+finish the check cases for all columns with its companions from diagonals and inverse diagonals 
