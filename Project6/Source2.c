@@ -37,7 +37,7 @@
 #define buttonX 120
 #define buttonY 390
 
-typedef struct {
+typedef struct HEXAGONAL{
 
 	int id;
 	int value;
@@ -48,7 +48,7 @@ typedef struct {
 
 }HEXAGONAL;
 
-typedef struct {
+typedef struct ELEMNET {
 
 	int x, y, orgX, orgY;
 	int id, type;
@@ -58,18 +58,11 @@ typedef struct {
 
 }ELEMNET;
 
-typedef struct {
+typedef struct ACTION {
 
 	bool state;
 
 }ACTION;
-
-typedef struct {
-	
-	int x, y;
-	ALLEGRO_BITMAP *bitmap;
-
-}SHAPES;
 
 void Home(ALLEGRO_EVENT event);
 void draw();
@@ -81,15 +74,11 @@ void diag_init();
 void inv_diag_init();
 void fill_all();
 void check(ALLEGRO_EVENT event);
-void check_cols();
-void check_diagons();
-void check_inv_diagons();
 void is_good_col();
 void is_good_diag();
 void is_good_inv_diag();
 void user_input(ALLEGRO_EVENT event);
 void game_loop(ALLEGRO_EVENT event);
-void redraw_elements();
 void shutdown();
 void check_move();
 void rand_elem();
@@ -97,57 +86,62 @@ void menu(ALLEGRO_EVENT event);
 void game_over(ALLEGRO_EVENT event);
 void check_end();
 void check_end2();
+void anim();
 
 ALLEGRO_DISPLAY *display;
 ALLEGRO_EVENT_QUEUE *queue;
 ALLEGRO_TIMER* timer;
-ALLEGRO_TIMER* timer2;
 ALLEGRO_EVENT event;
+
 ALLEGRO_COLOR randColr[6];
-ALLEGRO_COLOR tempColr;
+//ALLEGRO_COLOR tempColr;
 ALLEGRO_COLOR background_color;
+
 ALLEGRO_FONT *font;
 ALLEGRO_FONT *font2;
+
 ALLEGRO_BITMAP *bitmap;
 ALLEGRO_BITMAP *bitmap2;
 ALLEGRO_BITMAP *hexagonal;
-ALLEGRO_BITMAP *startClick;
+ALLEGRO_BITMAP *startClick; //change it to text
 ALLEGRO_BITMAP *gameOver;
-ALLEGRO_BITMAP *tempBitmap;
+//ALLEGRO_BITMAP *tempBitmap;
 ALLEGRO_BITMAP *menuBitmap;
 ALLEGRO_BITMAP *icon[2];
 ALLEGRO_BITMAP *elmBitmap[9];
+ALLEGRO_BITMAP *animCell;
+
 ALLEGRO_SAMPLE *bgSound;
 ALLEGRO_SAMPLE *clickSound;
 ALLEGRO_SAMPLE *endSound;
 ALLEGRO_SAMPLE *winSound;
+ALLEGRO_SAMPLE *animSound;
+
 ALLEGRO_MOUSE_STATE mState;
+
 HEXAGONAL cell[37];
 HEXAGONAL*col[7][7], *diag[7][7], *inv_diag[7][7];
-static ELEMNET elem[4], rndElem[9], testEl[3];
+ELEMNET elem[4], rndElem[9], testEl[3];
 ACTION move[3];
 
-int j, i, k, colr, activeElm, activeCell;
-int rnd[6];
+int j, i, k, activeElm, activeCell;
 bool done, game_started, lost, pause;
-bool move1, move2, move3;
-static int cellX = originX, cellY = originY, elX = elemX, elY = elemY;
-static int elemNum = 0, redraw = 1, score = 0, counter[8];
+static int cellX, cellY, elX, elY;
+static int redraw = 1, score = 0, counter[8];
 int c1, c2, c3;
 
 
 int main() {
 
-
 	init();
 	Home(event);
-
+	
 	rand_elem();
 	cell_update();
 	cols_init();
 	diag_init();
 	inv_diag_init();
-	
+
 	draw();
 	//game_over(event);
 	game_loop(event);
@@ -183,7 +177,7 @@ void init() {
 	}
 
 	timer = al_create_timer(1.0 / 60);
-	timer2 = al_create_timer(1.0 / 1);
+	//timer2 = al_create_timer(1.0 / 1);
 
 	if (!timer) {
 
@@ -235,7 +229,7 @@ void init() {
 	startClick = al_load_bitmap("clickStart.png");
 	//gameOver = al_load_bitmap("gameOver.png");
 	gameOver = al_load_bitmap("gameOver2.png");
-	tempBitmap = al_load_bitmap("clrCell01.png");
+	//tempBitmap = al_load_bitmap("clrCell01.png");
 	menuBitmap = al_load_bitmap("menu.png");
 
 	elmBitmap[0] = al_load_bitmap("elmCell.png");
@@ -251,12 +245,14 @@ void init() {
 	elmBitmap[8] = al_load_bitmap("3C05.png");
 
 	icon[0] = al_load_bitmap("pause.png");
+	animCell = al_load_bitmap("testForAnim.png");
 
 	bgSound = al_load_sample("sound.wav");
 	clickSound = al_load_sample("click.wav");
-	winSound = al_load_sample("win.wav");
+	winSound = al_load_sample("laser.wav");
 	endSound = al_load_sample("end.wav");
-	al_reserve_samples(4);
+	animSound = al_load_sample("test1.wav");
+	al_reserve_samples(5);
 
 	al_register_event_source(queue, al_get_keyboard_event_source());
 	al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -273,6 +269,140 @@ void init() {
 	elem[0].exist = true;
 	elem[1].exist = true;
 	elem[2].exist = true;
+
+}
+
+void cols_init() {
+
+	//init for many 1D pointers 
+
+	/*for (i = 0, j = 0; i < 4, j < 4; i++, j++) {
+
+	col17[i] = &cell[j];
+	col17[i + 4] = &cell[j + 33];
+
+	//	col[0][i]->id = j;
+	//	col[6][i]->id = j + 33;
+
+	//	printf("col[0][%d] = %d -- col[6][%d] = %d\n", i, col[0][i]->id, i, col[6][i]->id);
+	//	printf("cell[%d] = %d -- cell[%d] = %d\n", j, cell[j].id, j, cell[j + 33].id);
+	}
+
+	for (i = 0, j = 4; i < 5, j < 9; i++, j++) {
+
+	col26[i] = &cell[j];
+	col26[i + 5] = &cell[j + 24];
+	}
+
+	for (i = 0, j = 9; i < 6, j < 15; i++, j++) {
+
+	col35[i] = &cell[j];
+	col35[i + 6] = &cell[j + 13];
+	}
+
+	for (i = 0, j = 15; i < 7, j < 22; i++, j++) {
+
+	col40[i] = &cell[j];
+	}
+	*/
+
+	//init for one 2D pointer 
+
+	for (i = 0, j = 0; i < 4, j < 4; i++, j++) {
+
+		col[0][i] = &cell[j];
+		col[6][i] = &cell[j + 33];
+	}
+	for (i = 0, j = 4; i < 5, j < 9; i++, j++) {
+
+		col[1][i] = &cell[j];
+		col[5][i] = &cell[j + 24];
+	}
+
+	for (i = 0, j = 9; i < 6, j < 15; i++, j++) {
+
+		col[2][i] = &cell[j];
+		col[4][i] = &cell[j + 13];
+	}
+
+	for (i = 0, j = 15; i < 7, j < 22; i++, j++) {
+
+		col[3][i] = &cell[j];
+	}
+
+
+}
+
+void diag_init() {
+
+	for (i = 0, j = 3; i < 4, j >= 0; i++, j--) {
+
+		diag[0][i] = col[j][0];
+		diag[1][i + 1] = col[j][1];
+		diag[2][i + 2] = col[j][2];
+		diag[3][i + 3] = col[j][3];
+		if (j > 0)
+			diag[4][i + 3] = col[j][4];
+		if (i < 2)
+			diag[5][i + 3] = col[i + 2][5];
+	}
+
+	diag[1][0] = col[4][0];
+
+	for (i = 0, j = 5; i < 2, j >= 4; i++, j--) { //init. the left elements of diag[2]
+
+		diag[2][i] = col[j][i];
+	}
+
+	for (i = 0, j = 6; i < 3, j >= 4; i++, j--) { //init. the left element diag[3] & diag[4] & diag[5]
+
+		diag[3][i] = col[j][i];
+		diag[4][i] = col[j][i + 1];
+		diag[5][i] = col[j][i + 2];
+	}
+
+	for (i = 0, j = 6; i < 4, j >= 3; i++, j--) { //init. diag[6]
+
+		diag[6][i] = col[j][i + 3];
+	}
+
+}
+
+void inv_diag_init() {
+
+
+	for (i = 0, j = 3; i < 4, j < 7; i++, j++) {
+
+		inv_diag[0][i] = col[j][0];
+		inv_diag[1][i + 1] = col[j][1];
+		inv_diag[2][i + 2] = col[j][2];
+		inv_diag[3][i + 3] = col[j][3];
+		if (j < 6)
+			inv_diag[4][i + 3] = col[j][4];
+		if (j < 2)
+			inv_diag[5][i + 3] = col[j][5];
+	}
+
+	inv_diag[1][0] = col[2][0];
+
+	for (i = 0, j = 1; i < 2, j < 3; i++, j++) { //init. the left elements of inv_diag[2]
+
+		inv_diag[2][i] = col[j][i];
+	}
+
+	for (i = 0, j = 0; i < 3, j < 4; i++, j++) { //init. the left element inv_diag[3] & inv_diag[4] & inv_diag[5]
+
+		inv_diag[3][i] = col[j][i];
+		inv_diag[4][i] = col[j][i + 1];
+		inv_diag[5][i] = col[j][i + 2];
+	}
+
+	for (i = 0, j = 0; i < 4, j < 4; i++, j++) { //init. inv_diag[6]
+
+		inv_diag[6][i] = col[j][i + 3];
+	}
+	inv_diag[5][3] = col[3][5];
+	inv_diag[5][4] = col[4][5];
 
 }
 
@@ -472,105 +602,6 @@ void draw() {
 	al_flip_display();
 }
 
-void check_move() {
-
-	//Check the first Element
-	if (move[0].state && !move[1].state && !move[2].state) {
-
-		if (elem[0].bitmap != elmBitmap[3] && elem[0].bitmap != elmBitmap[6] && elem[0].bitmap != elmBitmap[8]) {
-
-			elem[0].x = elem[3].x - 15;
-			elem[0].y = elem[3].y - 15;
-		}
-		else if (elem[0].bitmap == elmBitmap[3] || elem[0].bitmap == elmBitmap[8]){
-
-			elem[0].x= elem[3].x - 35;
-			elem[0].y= elem[3].y - 15;
-		}
-		else if (elem[0].bitmap == elmBitmap[6]) {
-
-			elem[0].x = elem[3].x - 70;
-			elem[0].y = elem[3].y - 15;
-		}
-		
-	}
-
-	//Check the second Element
-	if (move[1].state && !move[0].state && !move[2].state) {
-
-		if (elem[1].bitmap != elmBitmap[3] && elem[1].bitmap != elmBitmap[6] && elem[1].bitmap != elmBitmap[8]) {
-
-			elem[1].x = elem[3].x - 15;
-			elem[1].y = elem[3].y - 15;
-		}
-		else if (elem[1].bitmap == elmBitmap[3] || elem[1].bitmap == elmBitmap[8]) {
-
-			elem[1].x = elem[3].x - 35;
-			elem[1].y = elem[3].y - 15;
-		}
-		else if (elem[1].bitmap == elmBitmap[6]) {
-
-			elem[1].x = elem[3].x - 70;
-			elem[1].y = elem[3].y - 15;
-		}
-	}
-
-	//Check the third Element
-	if (move[2].state && !move[0].state && !move[1].state) {
-
-		if (elem[2].bitmap != elmBitmap[3] && elem[2].bitmap != elmBitmap[6] && elem[2].bitmap != elmBitmap[8]) {
-
-			elem[2].x = elem[3].x - 15;
-			elem[2].y = elem[3].y - 15;
-		}
-		else if (elem[2].bitmap == elmBitmap[3] || elem[2].bitmap == elmBitmap[8]) {
-
-			elem[2].x = elem[3].x - 35;
-			elem[2].y = elem[3].y - 15;
-		}
-		else if (elem[2].bitmap == elmBitmap[6]) {
-
-			elem[2].x = elem[3].x - 70;
-			elem[2].y = elem[3].y - 15;
-		}
-	}
-}
-
-void redraw_elements() {
-
-	if (move1) {
-		elem[0].bitmap = al_clone_bitmap(bitmap2);
-		al_draw_bitmap(elem[0].bitmap, elem[0].x, elem[0].y, NULL);
-	}
-
-	elX = elemX, elY - elemY;
-
-	//for (i = 0; i < 3; i++) {
-
-		for (j = 0; j < 2; j++) {
-
-			//dualCell[0].bitmap = al_clone_bitmap(bitmap);
-			//al_draw_bitmap(dualCell[0].bitmap, elX, elY + 1, NULL); //drawing the 1st column
-
-
-			 //printf("cell[%d] = X - %d Y - %d\n", j, cell[j].x, cell[j].y);
-
-			 //Set the coordinates for each cell in the 1st and 7th column
-			//dualCell[j].x = elX;
-			//dualCell[j].y = elY + 1;
-
-
-			elY += 35; //increase the height value only in order to continue drawing from top to the bottom
-		}
-//	}
-	
-
-	al_flip_display();
-
-
-	//Not active now !
-}
- 
 void test(ALLEGRO_EVENT event) {
 
 	/*for (i = 0; i < 37; i++) {
@@ -599,140 +630,6 @@ void test(ALLEGRO_EVENT event) {
 
 
 	//}
-
-}
-
-void cols_init() {
-	
-	//init for many 1D pointers 
-
-	/*for (i = 0, j = 0; i < 4, j < 4; i++, j++) {
-
-		col17[i] = &cell[j];
-		col17[i + 4] = &cell[j + 33];
-
-	//	col[0][i]->id = j;
-	//	col[6][i]->id = j + 33;
-
-	//	printf("col[0][%d] = %d -- col[6][%d] = %d\n", i, col[0][i]->id, i, col[6][i]->id);
-	//	printf("cell[%d] = %d -- cell[%d] = %d\n", j, cell[j].id, j, cell[j + 33].id);
-	}
-	
-	for (i = 0, j = 4; i < 5, j < 9; i++, j++) {
-
-		col26[i] = &cell[j];
-		col26[i + 5] = &cell[j + 24];
-	}
-
-	for (i = 0, j = 9; i < 6, j < 15; i++, j++) {
-
-		col35[i] = &cell[j];
-		col35[i + 6] = &cell[j + 13];
-	}
-
-	for (i = 0, j = 15; i < 7, j < 22; i++, j++) {
-
-		col40[i] = &cell[j];
-	}
-	*/
-	
-	//init for one 2D pointer 
-
-	for (i = 0, j = 0; i < 4, j < 4; i++, j++) {
-
-		col[0][i] = &cell[j];
-		col[6][i] = &cell[j + 33];
-	}
-	for (i = 0, j = 4; i < 5, j < 9; i++, j++) {
-
-		col[1][i] = &cell[j];
-		col[5][i] = &cell[j + 24];
-	}
-
-	for (i = 0, j = 9; i < 6, j < 15; i++, j++) {
-
-		col[2][i] = &cell[j];
-		col[4][i] = &cell[j + 13];
-	}
-
-	for (i = 0, j = 15; i < 7, j < 22; i++, j++) {
-
-		col[3][i] = &cell[j];
-	}
-	
-	
-}
-
-void diag_init() {
-
-	for (i = 0, j = 3; i < 4, j >= 0; i++,j--) {
-		
-		diag[0][i] = col[j][0];
-		diag[1][i + 1] = col[j][1];
-		diag[2][i + 2] = col[j][2];
-		diag[3][i + 3] = col[j][3];
-		if (j > 0) 
-			diag[4][i + 3] = col[j][4];
-		if (i < 2)
-			diag[5][i + 3] = col[i + 2][5];
-		}
-	
-	diag[1][0] = col[4][0];
-
-	for (i = 0, j = 5; i < 2, j >= 4; i++, j--) { //init. the left elements of diag[2]
-	
-		diag[2][i] = col[j][i];
-	}
-
-	for (i = 0, j = 6; i < 3, j >= 4; i++, j--) { //init. the left element diag[3] & diag[4] & diag[5]
-
-		diag[3][i] = col[j][i];
-		diag[4][i] = col[j][i + 1];
-		diag[5][i] = col[j][i + 2];
-	}
-
-	for (i = 0, j = 6; i < 4, j >= 3; i++, j--) { //init. diag[6]
-
-		diag[6][i] = col[j][i + 3];
-	}
-
-}
-
-void inv_diag_init() {
-
-
-	for (i = 0, j = 3; i < 4, j < 7; i++, j++) {
-
-		inv_diag[0][i] = col[j][0];
-		inv_diag[1][i + 1] = col[j][1];
-		inv_diag[2][i + 2] = col[j][2];
-		inv_diag[3][i + 3] = col[j][3];
-		if (j < 6)
-			inv_diag[4][i + 3] = col[j][4];
-		if (j < 2)
-			inv_diag[5][i + 3] = col[j][5];
-	}
-	
-	inv_diag[1][0] = col[2][0];
-
-	for (i = 0, j = 1; i < 2, j < 3; i++, j++) { //init. the left elements of inv_diag[2]
-
-		inv_diag[2][i] = col[j][i];
-	}
-
-	for (i = 0, j = 0; i < 3, j < 4; i++, j++) { //init. the left element inv_diag[3] & inv_diag[4] & inv_diag[5]
-
-		inv_diag[3][i] = col[j][i];
-		inv_diag[4][i] = col[j][i + 1];
-		inv_diag[5][i] = col[j][i + 2];
-	}
-
-	for (i = 0, j = 0; i < 4, j < 4; i++, j++) { //init. inv_diag[6]
-
-		inv_diag[6][i] = col[j][i + 3];
-	}
-	inv_diag[5][3] = col[3][5];
-	inv_diag[5][4] = col[4][5];
 
 }
 
@@ -1439,54 +1336,81 @@ void check(ALLEGRO_EVENT event) {
 			}
 			printf("cell[%d].filled = %d\n", i, cell[i].filled);
 			printf("Your Score is = %d\n", score);
-			check_cols();
+			cell_update();
+			draw();
 			is_good_col();
 			is_good_diag();
 			is_good_inv_diag();
 			cell_update();
+			check_end2();
 			//check_end();
 		}//
 	}
 	
 }
 
-void check_cols() {
+void check_move() {
 
-	if ((event.mouse.button & 1) && (!cell[i].filled) && (event.mouse.x >= cell[i].x) && (event.mouse.x <= cell[i].x + cellWidth) && (event.mouse.y >= cell[i].y) && (event.mouse.y <= cell[i].y + cellHeight) && ((move[0].state && !move[1].state && !move[2].state) || (!move[0].state && move[1].state && !move[2].state) || (!move[0].state && !move[1].state && move[2].state))) {
+	//Check the first Element
+	if (move[0].state && !move[1].state && !move[2].state) {
 
-		if (elem[activeElm].type == 2) {
-			
-			switch (elem[activeElm].id)
-			{
-			case 1:
+		if (elem[0].bitmap != elmBitmap[3] && elem[0].bitmap != elmBitmap[6] && elem[0].bitmap != elmBitmap[8]) {
 
-			break;
+			elem[0].x = elem[3].x - 15;
+			elem[0].y = elem[3].y - 15;
+		}
+		else if (elem[0].bitmap == elmBitmap[3] || elem[0].bitmap == elmBitmap[8]) {
 
-			case 2:
-			break;
+			elem[0].x = elem[3].x - 35;
+			elem[0].y = elem[3].y - 15;
+		}
+		else if (elem[0].bitmap == elmBitmap[6]) {
 
-			case 3:
-			break;
-
-			default:
-			break;
-			}
+			elem[0].x = elem[3].x - 70;
+			elem[0].y = elem[3].y - 15;
 		}
 
 	}
-}
 
-void check_diagons() {
+	//Check the second Element
+	if (move[1].state && !move[0].state && !move[2].state) {
 
-	
+		if (elem[1].bitmap != elmBitmap[3] && elem[1].bitmap != elmBitmap[6] && elem[1].bitmap != elmBitmap[8]) {
 
-}
+			elem[1].x = elem[3].x - 15;
+			elem[1].y = elem[3].y - 15;
+		}
+		else if (elem[1].bitmap == elmBitmap[3] || elem[1].bitmap == elmBitmap[8]) {
 
-void check_inv_diagons() {
+			elem[1].x = elem[3].x - 35;
+			elem[1].y = elem[3].y - 15;
+		}
+		else if (elem[1].bitmap == elmBitmap[6]) {
 
+			elem[1].x = elem[3].x - 70;
+			elem[1].y = elem[3].y - 15;
+		}
+	}
 
-	
+	//Check the third Element
+	if (move[2].state && !move[0].state && !move[1].state) {
 
+		if (elem[2].bitmap != elmBitmap[3] && elem[2].bitmap != elmBitmap[6] && elem[2].bitmap != elmBitmap[8]) {
+
+			elem[2].x = elem[3].x - 15;
+			elem[2].y = elem[3].y - 15;
+		}
+		else if (elem[2].bitmap == elmBitmap[3] || elem[2].bitmap == elmBitmap[8]) {
+
+			elem[2].x = elem[3].x - 35;
+			elem[2].y = elem[3].y - 15;
+		}
+		else if (elem[2].bitmap == elmBitmap[6]) {
+
+			elem[2].x = elem[3].x - 70;
+			elem[2].y = elem[3].y - 15;
+		}
+	}
 }
 
 void is_good_col() {
@@ -1497,6 +1421,7 @@ void is_good_col() {
 	i = 0;
 	if(col[0][i]->filled == true && col[0][++i]->filled == true && col[0][++i]->filled == true && col[0][++i]->filled == true){
 
+		anim();
 		printf("WOW ! \n");
 		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 		for (i = 0; i < 4; i++) {
@@ -1509,6 +1434,7 @@ void is_good_col() {
 		//---------------check the companion diagonals for the 1st column
 		//check the 1st diagonal
 		if (diag[0][i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true && !diag[0][++i]->filled == true) {
+			
 			for (i = 0; i < 4; i++) {
 
 				diag[0][i]->filled = false;
@@ -2855,10 +2781,11 @@ void game_loop(ALLEGRO_EVENT event) {
 					elem[i].y = elem[i].orgY;
 				}
 			}
-
+			check_end2();
 			check(event);
-			check_end();
-			//check_end2();
+			
+			//check_end();
+			
 		}
 		draw();	
 	}
@@ -3002,7 +2929,7 @@ void rand_elem() {
 
 void game_over(ALLEGRO_EVENT event) {
 
-	
+	al_rest(1.0);
 	al_play_sample(endSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 	gameOver = al_clone_bitmap(gameOver);
 	al_draw_bitmap(gameOver, 0, 0, NULL);
@@ -3084,7 +3011,6 @@ void menu(ALLEGRO_EVENT event) {
 
 
  }
-
 
 void check_end() {
 
@@ -3192,19 +3118,24 @@ void check_end() {
 
 void check_end2() {
 
+	for (i = 0; i < 9; i++) {
+		counter[i] = 0;
+	}
+
+	//1C01 & 2C01 & 3C01 cases
 	for (i = 0; i < 37; i++) {
-		//1C01 case
+		////----------1C01 case
 		if (!cell[i].filled) {
 			counter[0]++;
 		}
-		//2C01 case
+		////----------2C01 case
 		if (!cell[i].filled && !cell[i + 1].filled) {
 			if (cell[i].id == 3 || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21 || cell[i].id == 27 || cell[i].id == 32 || cell[i].id == 36)
 				continue;
 
 			counter[1]++;
 		}
-		//3C01 case
+		////----------3C01 case
 		if (!cell[i].filled && !cell[i + 1].filled && !cell[i + 2].filled) {
 			if (cell[i].id == 2 || cell[i].id == 3 || cell[i].id == 7 || cell[i].id == 8 || cell[i].id == 13 || cell[i].id == 14 || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 26 || cell[i].id == 27 || cell[i].id == 31 || cell[i].id == 32 || cell[i].id == 35 || cell[i].id == 36)
 				continue;
@@ -3212,6 +3143,172 @@ void check_end2() {
 			counter[4]++;
 		}
 	}
-	//check the columns here
+
+	//----------2C02 case
+	for (i = 0; i < 6; i++) {
+
+		if ((i < 3) && ((!inv_diag[0][i]->filled && !inv_diag[0][i + 1]->filled) || (!inv_diag[6][i]->filled && !inv_diag[6][i + 1]->filled))) {
+
+			counter[2]++;
+		}//end of 1st and 7th inv_diagonals
+
+		if ((i < 4) && ((!inv_diag[1][i]->filled && !inv_diag[1][i + 1]->filled) || (!inv_diag[5][i]->filled && !inv_diag[5][i + 1]->filled))) {
+
+			counter[2]++;
+		}//end of 2st and 6th inv_diagonals
+
+		if ((i < 5) && ((!inv_diag[2][i]->filled && !inv_diag[2][i + 1]->filled) || (!inv_diag[4][i]->filled && !inv_diag[4][i + 1]->filled))) {
+
+			counter[2]++;
+		}//end of 3st and 5th inv_diagonals
+		if (!inv_diag[3][i]->filled && !inv_diag[3][i + 1]->filled) {
+
+			counter[2]++;
+		}//end of 4th inv_diagonals
+	}
+
+
+	//----------2C03 case
+	for (i = 0; i < 6; i++) {
+
+		if ((i < 3) && ((!diag[0][i]->filled && !diag[0][i + 1]->filled) || (!diag[6][i]->filled && !diag[6][i + 1]->filled))) {
+
+			counter[3]++;
+		}//end of 1st and 7th diagonals
+		
+		if ((i < 4) && ((!diag[1][i]->filled && !diag[1][i + 1]->filled) || (!diag[5][i]->filled && !diag[5][i + 1]->filled))) {
+
+			counter[3]++;
+		}//end of 2st and 6th diagonals
+
+		if ((i < 5) && ((!diag[2][i]->filled && !diag[2][i + 1]->filled) || (!diag[4][i]->filled && !diag[4][i + 1]->filled))) {
+			
+			counter[3]++;
+		}//end of 3st and 5th diagonals
+		if (!diag[3][i]->filled && !diag[3][i + 1]->filled) {
+
+			counter[3]++;
+		}//end of 4th diagonals
+	}
+
+	//----------3C02 case
+	for (i = 0; i < 5; i++) {
+
+		if ((i < 2) && ((!inv_diag[0][i]->filled && !inv_diag[0][i + 1]->filled && !inv_diag[0][i + 2]->filled) || (!inv_diag[6][i]->filled && !inv_diag[6][i + 1]->filled && !inv_diag[6][i + 2]->filled))) {
+
+			counter[5]++;
+		}//end of 1st and 7th inv_diagonals
+
+		if ((i < 3) && ((!inv_diag[1][i]->filled && !inv_diag[1][i + 1]->filled && !inv_diag[1][i + 2]->filled) || (!inv_diag[5][i]->filled && !inv_diag[5][i + 1]->filled && !inv_diag[5][i + 2]->filled))) {
+
+			counter[5]++;
+		}//end of 2st and 6th inv_diagonals
+
+		if ((i < 4) && ((!inv_diag[2][i]->filled && !inv_diag[2][i + 1]->filled && !inv_diag[2][i + 2]->filled) || (!inv_diag[4][i]->filled && !inv_diag[4][i + 1]->filled && !inv_diag[4][i + 2]->filled))) {
+
+			counter[5]++;
+		}//end of 3st and 5th inv_diagonals
+
+		if (!inv_diag[3][i]->filled && !inv_diag[3][i + 1]->filled && !inv_diag[3][i + 2]->filled) {
+
+			counter[5]++;
+		}//end of 4th inv_diagonals
+	}
+
+	//----------3C03 case
+	for (i = 0; i < 5; i++) {
+
+		if ((i < 2) && ((!diag[0][i]->filled && !diag[0][i + 1]->filled && !diag[0][i + 2]->filled) || (!diag[6][i]->filled && !diag[6][i + 1]->filled && !diag[6][i + 2]->filled))) {
+			
+			counter[6]++;
+		}//end of 1st and 7th diagonals
+
+		if ((i < 3) && ((!diag[1][i]->filled && !diag[1][i + 1]->filled && !diag[1][i + 2]->filled) || (!diag[5][i]->filled && !diag[5][i + 1]->filled && !diag[5][i + 2]->filled))) {
+
+			counter[6]++;
+		}//end of 2st and 6th diagonals
+
+		if ((i < 4) && ((!diag[2][i]->filled && !diag[2][i + 1]->filled && !diag[2][i + 2]->filled) || (!diag[4][i]->filled && !diag[4][i + 1]->filled && !diag[4][i + 2]->filled))) {
+		
+			counter[6]++;
+		}//end of 3st and 5th diagonals
+
+		if (!diag[3][i]->filled && !diag[3][i + 1]->filled && !diag[3][i + 2]->filled) {
+		
+			counter[6]++;
+		}//end of 4th diagonals
+	}
+
+	//----------3C04 & 3C05 cases
+	for (i = 0; i < 6; i++) {
+
+		//---3C04
+		if ((i < 4) && ((!col[0][i]->filled && !col[1][i + 1]->filled && !col[2][i + 1]->filled) || (!col[4][i + 1]->filled && !col[5][i + 1]->filled && !col[6][i]->filled))) {
+			counter[7]++;
+		}
+		if ((i < 5) && ((!col[1][i]->filled && !col[2][i + 1]->filled && !col[3][i + 1]->filled) || (!col[3][i + 1]->filled && !col[4][i + 1]->filled && !col[5][i]->filled))) {
+			counter[7]++;
+		}
+		if (!col[2][i]->filled && !col[3][i + 1]->filled && !col[4][i]->filled) {
+			counter[7]++;
+		}
+
+		//---3C05
+		if ((i < 4) && ((!col[0][i]->filled && !col[1][i]->filled && !col[2][i + 1]->filled) || (!col[4][i + 1]->filled && !col[5][i]->filled && !col[6][i]->filled))) {
+			counter[8]++;
+		}
+		if ((i < 5) && ((!col[1][i]->filled && !col[2][i]->filled && !col[3][i + 1]->filled) || (!col[3][i + 1]->filled && !col[4][i]->filled && !col[5][i]->filled))) {
+			counter[8]++;
+		}
+		if (!col[2][i]->filled && !col[3][i]->filled && !col[4][i]->filled) {
+			counter[8]++;
+		}
+	}
+	
+	for (i = 0; i < 3; i++) {
+
+		for (j = 0; j < 9; j++) {
+
+			if (elem[i].id == j && counter[j] == 0) {
+				elem[i].badElem = true;
+			}
+		}
+	}
+
+	for (i = 0; i < 9; i++) {
+		printf("counter[%d] = %d\n", i, counter[i]);
+	}
+	for (i = 0; i < 3; i++) {
+		printf("elem[%d].badElem = %d\n", i, elem[i].badElem);
+	}
+
+	cell_update();
+
+	j = 0;
+	if ((elem[j].badElem && elem[++j].badElem && elem[++j].badElem) || (elem[0].badElem && !elem[1].exist && !elem[2].exist) || (elem[1].badElem && !elem[0].exist && !elem[2].exist) || (elem[2].badElem && !elem[0].exist && !elem[1].exist) || (elem[0].badElem && elem[1].badElem && !elem[2].exist) || (elem[0].badElem && elem[2].badElem && !elem[1].exist) || (elem[1].badElem && elem[2].badElem && !elem[0].exist)) {
+		printf("not true\n");
+		game_over(event);
+	}
+	else {
+		for (j = 0; j < 3; j++) {
+
+			elem[j].badElem == false;
+
+		}
+		printf("all false\n");
+	}
 }
 			
+void anim() {
+
+	for (i = 0; i < 4; i++) {
+		cell[i].bitmap = al_clone_bitmap(animCell);
+		al_draw_tinted_bitmap(cell[i].bitmap, cell[i].cellClr, cell[i].x - 10, cell[i].y - 10, NULL);
+		al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+		al_rest(0.2);
+		cell[i].bitmap = al_clone_bitmap(bitmap);
+		//al_draw_tinted_bitmap(cell[i].bitmap, cell[i].cellClr, cell[i].x - 10, cell[i].y - 10, NULL);
+		al_flip_display();
+	}
+
+}
