@@ -37,6 +37,11 @@
 #define buttonX 120
 #define buttonY 390
 
+typedef enum CELL_PATTERN
+{
+	Column,Diagonal,invDiagonal,Col_Diagonal, Col_invDiagonal,Diag_InvDiagonal
+}CELL_PATTERN;
+
 typedef struct HEXAGONAL{
 
 	int id;
@@ -86,7 +91,8 @@ void menu(ALLEGRO_EVENT event);
 void game_over(ALLEGRO_EVENT event);
 void check_end();
 void check_end2();
-void anim();
+void single_effect(CELL_PATTERN groupType, int START, int END);
+void double_effect(CELL_PATTERN groupType, int, int, int, int);
 
 ALLEGRO_DISPLAY *display;
 ALLEGRO_EVENT_QUEUE *queue;
@@ -123,6 +129,7 @@ HEXAGONAL cell[37];
 HEXAGONAL*col[7][7], *diag[7][7], *inv_diag[7][7];
 ELEMNET elem[4], rndElem[9], testEl[3];
 ACTION move[3];
+CELL_PATTERN groupType;
 
 int j, i, k, activeElm, activeCell;
 bool done, game_started, lost, pause;
@@ -1415,13 +1422,16 @@ void check_move() {
 
 void is_good_col() {
 
+	bool noCompanion = true;
+
 	//>>>> ====================== Checking The columns ========================= <<<<
 
 	//>> -------check the 1st column and its companions ----------- <<
 	i = 0;
-	if(col[0][i]->filled == true && col[0][++i]->filled == true && col[0][++i]->filled == true && col[0][++i]->filled == true){
+	if (col[0][i]->filled == true && col[0][++i]->filled == true && col[0][++i]->filled == true && col[0][++i]->filled == true) {
 
-		anim();
+		//single_effect(Column, 0, 0, 3);
+		//double_effect();
 		printf("WOW ! \n");
 		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 		for (i = 0; i < 4; i++) {
@@ -1434,10 +1444,12 @@ void is_good_col() {
 		//---------------check the companion diagonals for the 1st column
 		//check the 1st diagonal
 		if (diag[0][i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true && !diag[0][++i]->filled == true) {
-			
+
+			double_effect(Col_Diagonal, 0, 0, 3, 0, 0, 3);
 			for (i = 0; i < 4; i++) {
 
 				diag[0][i]->filled = false;
+				noCompanion = false;
 				score++;
 			}
 		}
@@ -1448,32 +1460,35 @@ void is_good_col() {
 			for (i = 0; i < 5; i++) {
 
 				diag[1][i]->filled = false;
+				noCompanion = false;
 				score++;
 			}
 		}
-			i = 0;
-		 //check the 3rd diagonal
+		i = 0;
+		//check the 3rd diagonal
 		i = 0;
 		if (diag[2][i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && !diag[2][++i]->filled == true) {
 
 			for (i = 0; i < 6; i++) {
 
 				diag[2][i]->filled = false;
+				noCompanion = false;
 				score++;
 			}
 		}
-			i = 0;
-		 //check the 4th diagonal
+		i = 0;
+		//check the 4th diagonal
 		i = 0;
 		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true) {
 
 			for (i = 0; i < 7; i++) {
 
 				diag[3][i]->filled = false;
+				noCompanion = false;
 				score++;
 			}
 		}
-			
+
 		i = 0;
 
 		//--------------check the inverse companion diagonals for the 1st column
@@ -1483,6 +1498,7 @@ void is_good_col() {
 			for (i = 0; i < 4; i++) {
 
 				inv_diag[6][i]->filled = false;
+				noCompanion = false;
 				score++;
 			}
 		}
@@ -1493,6 +1509,7 @@ void is_good_col() {
 			for (i = 0; i < 7; i++) {
 
 				inv_diag[3][i]->filled = false;
+				noCompanion = false;
 				score++;
 			}
 		}
@@ -1504,6 +1521,7 @@ void is_good_col() {
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[4][i]->filled = false;
+				noCompanion = false;
 				score++;
 			}
 		}
@@ -1515,9 +1533,15 @@ void is_good_col() {
 			for (i = 0; i < 5; i++) {
 
 				inv_diag[5][i]->filled = false;
+				noCompanion = false;
 				score++;
 			}
 		}
+
+		if (noCompanion) {
+			single_effect(Column, 0, 0, 3);
+		}
+
 	}//end of 1st column
 
 
@@ -3299,16 +3323,113 @@ void check_end2() {
 	}
 }
 			
-void anim() {
+void single_effect(CELL_PATTERN groupType, int rowNumber, int START, int END) {
 
-	for (i = 0; i < 4; i++) {
-		cell[i].bitmap = al_clone_bitmap(animCell);
-		al_draw_tinted_bitmap(cell[i].bitmap, cell[i].cellClr, cell[i].x - 10, cell[i].y - 10, NULL);
-		al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-		al_rest(0.2);
-		cell[i].bitmap = al_clone_bitmap(bitmap);
-		//al_draw_tinted_bitmap(cell[i].bitmap, cell[i].cellClr, cell[i].x - 10, cell[i].y - 10, NULL);
+
+	if (groupType == Column) {
+
+		for (i = START; i <= END; i++) {
+
+			col[rowNumber][i]->bitmap = al_clone_bitmap(animCell);
+			al_draw_tinted_bitmap(col[rowNumber][i]->bitmap, col[rowNumber][i]->cellClr, col[rowNumber][i]->x - 10, col[rowNumber][i]->y - 10, NULL);
+			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+			al_rest(0.2);
+			al_flip_display();
+		}
+	}
+	else if (groupType == Diagonal) {
+
+		for (i = START; i <= END; i++) {
+
+			diag[rowNumber][i]->bitmap = al_clone_bitmap(animCell);
+			al_draw_tinted_bitmap(diag[rowNumber][i]->bitmap, diag[rowNumber][i]->cellClr, diag[rowNumber][i]->x - 10, diag[rowNumber][i]->y - 10, NULL);
+			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+			al_rest(0.2);
+			al_flip_display();
+		}
+	}
+	else if (groupType == invDiagonal) {
+
+		for (i = START; i <= END; i++) {
+
+			diag[rowNumber][i]->bitmap = al_clone_bitmap(animCell);
+			al_draw_tinted_bitmap(inv_diag[rowNumber][i]->bitmap, inv_diag[rowNumber][i]->cellClr, inv_diag[rowNumber][i]->x - 10, inv_diag[rowNumber][i]->y - 10, NULL);
+			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+			al_rest(0.2);
+			al_flip_display();
+		}
+	}
+}
+
+void double_effect(CELL_PATTERN groupType, int rowNum1, int START1, int END1, int rowNum2, int START2, int END2) {
+
+	//-----column and diagonal
+	if (groupType == Col_Diagonal) {
+
+		for (i = START1,j=START2; i <= END1, j <= END2; i++,j++) {
+
+			col[rowNum1][i]->bitmap = al_clone_bitmap(animCell);
+
+			al_draw_tinted_bitmap(col[rowNum1][i]->bitmap, col[rowNum1][i]->cellClr, col[rowNum1][i]->x - 10, col[rowNum1][i]->y - 10, NULL);
+
+			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+		}
+		for (i = START2; i <= END2; i++) {
+
+			diag[rowNum2][i]->bitmap = al_clone_bitmap(animCell);
+
+			al_draw_tinted_bitmap(diag[rowNum2][i]->bitmap, diag[rowNum2][i]->cellClr, diag[rowNum2][i]->x - 10, diag[rowNum2][i]->y - 10, NULL);
+
+			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+		}
 		al_flip_display();
+		al_rest(0.5);
 	}
 
+	//-----column and inverse diagonal
+	if (groupType == Col_invDiagonal) {
+
+		for (i = START1; i <= END1; i++) {
+
+			col[rowNum1][i]->bitmap = al_clone_bitmap(animCell);
+
+			al_draw_tinted_bitmap(col[rowNum1][i]->bitmap, col[rowNum1][i]->cellClr, col[rowNum1][i]->x - 10, col[rowNum1][i]->y - 10, NULL);
+
+			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+		}
+		for (i = START2; i <= END2; i++) {
+
+			inv_diag[rowNum2][i]->bitmap = al_clone_bitmap(animCell);
+
+			al_draw_tinted_bitmap(inv_diag[rowNum2][i]->bitmap, inv_diag[rowNum2][i]->cellClr, inv_diag[rowNum2][i]->x - 10, inv_diag[rowNum2][i]->y - 10, NULL);
+
+			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+		}
+		al_flip_display();
+		al_rest(0.5);
+	}
+
+	//-----diagonal and inverse diagonal
+	if (groupType == Diag_InvDiagonal) {
+
+		for (i = START1; i <= END1; i++) {
+
+			diag[rowNum1][i]->bitmap = al_clone_bitmap(animCell);
+
+			al_draw_tinted_bitmap(diag[rowNum1][i]->bitmap, diag[rowNum1][i]->cellClr, diag[rowNum1][i]->x - 10, diag[rowNum1][i]->y - 10, NULL);
+
+			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+		}
+		for (i = START2; i <= END2; i++) {
+
+			inv_diag[rowNum2][i]->bitmap = al_clone_bitmap(animCell);
+
+			al_draw_tinted_bitmap(inv_diag[rowNum2][i]->bitmap, inv_diag[rowNum2][i]->cellClr, inv_diag[rowNum2][i]->x - 10, inv_diag[rowNum2][i]->y - 10, NULL);
+
+			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+
+		}
+		al_flip_display();
+		al_rest(0.5);
+	}
 }

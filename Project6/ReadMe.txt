@@ -1,2 +1,1 @@
-finish the check_end function to figure out whether the game finished or not.
-some new sounds have been added also
+simple effects have been added for the cells when they are being destroyed
