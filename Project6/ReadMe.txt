@@ -1,1 +1,1 @@
-simple effects have been added for the cells when they are being destroyed
+All the check cases have become finished (all the diagonals with their companions from inverse diagonals are working now)
