@@ -1,1 +1,1 @@
-All the check cases have become finished (all the diagonals with their companions from inverse diagonals are working now)
+both single and double effect are working with all columns and their companions from diagonals and inverse diagonals

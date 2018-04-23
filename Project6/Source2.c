@@ -1448,10 +1448,10 @@ void is_good_col() {
 		if (diag[0][i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true && !diag[0][++i]->filled == true) {
 
 			double_effect(Col_Diagonal, 0, 0, 3, 0, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				diag[0][i]->filled = false;
-				noCompanion = false;
 				score++;
 			}
 		}
@@ -1459,10 +1459,11 @@ void is_good_col() {
 		i = 0;
 		if (diag[1][i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && !diag[1][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 0, 0, 3, 1, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				diag[1][i]->filled = false;
-				noCompanion = false;
 				score++;
 			}
 		}
@@ -1471,10 +1472,11 @@ void is_good_col() {
 		i = 0;
 		if (diag[2][i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && !diag[2][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 0, 0, 3, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[2][i]->filled = false;
-				noCompanion = false;
 				score++;
 			}
 		}
@@ -1483,34 +1485,26 @@ void is_good_col() {
 		i = 0;
 		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 0, 0, 3, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				diag[3][i]->filled = false;
-				noCompanion = false;
 				score++;
 			}
 		}
 
 		i = 0;
 		//--------------check the inverse companion diagonals for the 1st column
-		//check the 3rd inv_diagonal
-		if (!inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true) {
-
-			for (i = 0; i < 4; i++) {
-
-				inv_diag[6][i]->filled = false;
-				noCompanion = false;
-				score++;
-			}
-		}
 		//check the 4th inv_diagonal
 		i = 0;
 		if (!inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 0, 0, 3, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				inv_diag[3][i]->filled = false;
-				noCompanion = false;
 				score++;
 			}
 		}
@@ -1519,10 +1513,11 @@ void is_good_col() {
 		i = 0;
 		if (!inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 0, 0, 3, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[4][i]->filled = false;
-				noCompanion = false;
 				score++;
 			}
 		}
@@ -1531,10 +1526,22 @@ void is_good_col() {
 		i = 0;
 		if (!inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 0, 0, 3, 5, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				inv_diag[5][i]->filled = false;
-				noCompanion = false;
+				score++;
+			}
+		}
+		//check the 7th inv_diagonal
+		if (!inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true) {
+
+			double_effect(Col_invDiagonal, 0, 0, 3, 6, 0, 3);
+			noCompanion = false;
+			for (i = 0; i < 4; i++) {
+
+				inv_diag[6][i]->filled = false;
 				score++;
 			}
 		}
@@ -1562,6 +1569,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[0][i]->filled == true && diag[0][++i]->filled == true && !diag[0][++i]->filled == true && diag[0][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 1, 0, 4, 0, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				diag[0][i]->filled = false;
@@ -1574,6 +1583,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[1][i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && !diag[1][++i]->filled == true && diag[1][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 1, 0, 4, 1, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				diag[1][i]->filled = false;
@@ -1586,6 +1597,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[2][i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && !diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 1, 0, 4, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[2][i]->filled = false;
@@ -1598,6 +1611,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 1, 0, 4, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				diag[3][i]->filled = false;
@@ -1610,6 +1625,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[4][i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && !diag[4][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 1, 0, 4, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[4][i]->filled = false;
@@ -1622,6 +1639,8 @@ void is_good_col() {
 		i = 0;
 		if (!inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 1, 0, 4, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[2][i]->filled = false;
@@ -1633,6 +1652,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[3][i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 1, 0, 4, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				inv_diag[3][i]->filled = false;
@@ -1644,6 +1665,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[4][i]->filled == true && !inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 1, 0, 4, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[4][i]->filled = false;
@@ -1655,6 +1678,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[5][i]->filled == true && !inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 1, 0, 4, 5, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				inv_diag[5][i]->filled = false;
@@ -1666,11 +1691,17 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[6][i]->filled == true && !inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 1, 0, 4, 6, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				inv_diag[6][i]->filled = false;
 				score++;
 			}
+		}
+
+		if (noCompanion) {
+			single_effect(Column, 1, 0, 4);
 		}
 	}//---------end of 2nd column
 
@@ -1692,67 +1723,74 @@ void is_good_col() {
 		i = 0;
 		if (diag[0][i]->filled == true && !diag[0][++i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 2, 0, 5, 0, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				diag[0][i]->filled = false;
 				score++;
 			}
-		}//end of 1st diagonal
-
+		}
 
 		 //check the 2nd diagonal
 		i = 0;
 		if (diag[1][i]->filled == true && diag[1][++i]->filled == true && !diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 2, 0, 5, 1, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				diag[1][i]->filled = false;
 				score++;
 			}
-		}//end of 2nd diagonal
-
+		}
 
 		 //check the 3rd diagonal
 		i = 0;
 		if (diag[2][i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && !diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 2, 0, 5, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[2][i]->filled = false;
 				score++;
 			}
-		}//end of 3rd diagonal
-
+		}
 
 		 //check the 4th diagonal
 		i = 0;
 		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 2, 0, 5, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				diag[3][i]->filled = false;
 				score++;
 			}
 			i = 0;
-		}//end of 4th diagonal
-
+		}
 
 		 //check the 5th diagonal
 		i = 0;
 		if (diag[4][i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && !diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 2, 0, 5, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[4][i]->filled = false;
 				score++;
 			}
-		}//end of 5th diagonal
-
+		}
 
 		 //check the 6th diagonal
 		i = 0;
 		if (diag[5][i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && !diag[5][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 2, 0, 5, 5, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				diag[5][i]->filled = false;
@@ -1767,6 +1805,8 @@ void is_good_col() {
 		i = 0;
 		if (!inv_diag[1][i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 2, 0, 5, 1, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				inv_diag[1][i]->filled = false;
@@ -1778,6 +1818,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[2][i]->filled == true && !inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 2, 0, 5, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[2][i]->filled = false;
@@ -1789,6 +1831,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 2, 0, 5, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				inv_diag[3][i]->filled = false;
@@ -1800,6 +1844,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && !inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 2, 0, 5, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[4][i]->filled = false;
@@ -1811,6 +1857,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && !inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 2, 0, 5, 5, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				inv_diag[5][i]->filled = false;
@@ -1822,11 +1870,16 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && !inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 2, 0, 5, 6, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				inv_diag[6][i]->filled = false;
 				score++;
 			}
+		}
+		if (noCompanion) {
+			single_effect(Column, 2, 0, 5);
 		}
 	}//end of 3rd column
 
@@ -1848,6 +1901,8 @@ void is_good_col() {
 		i = 0;
 		if (!diag[0][i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true && diag[0][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 3, 0, 6, 0, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				diag[0][i]->filled = false;
@@ -1859,6 +1914,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[1][i]->filled == true && !diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 3, 0, 6, 1, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				diag[1][i]->filled = false;
@@ -1870,6 +1927,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[2][i]->filled == true && diag[2][++i]->filled == true && !diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 3, 0, 6, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[2][i]->filled = false;
@@ -1881,6 +1940,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 3, 0, 6, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				diag[3][i]->filled = false;
@@ -1892,6 +1953,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[4][i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && !diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 3, 0, 6, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[4][i]->filled = false;
@@ -1903,6 +1966,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[5][i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && !diag[5][++i]->filled == true && diag[5][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 3, 0, 6, 5, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				diag[5][i]->filled = false;
@@ -1914,6 +1979,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[6][i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true && !diag[6][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 3, 0, 6, 6, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				diag[6][i]->filled = false;
@@ -1926,6 +1993,8 @@ void is_good_col() {
 		i = 0;
 		if (!inv_diag[0][i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 3, 0, 6, 0, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				inv_diag[0][i]->filled = false;
@@ -1937,6 +2006,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[1][i]->filled == true && !inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 3, 0, 6, 1, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				inv_diag[1][i]->filled = false;
@@ -1948,6 +2019,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && !inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 3, 0, 6, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[2][i]->filled = false;
@@ -1959,6 +2032,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 3, 0, 6, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				inv_diag[3][i]->filled = false;
@@ -1970,6 +2045,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && !inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 3, 0, 6, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[4][i]->filled = false;
@@ -1981,6 +2058,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && !inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 3, 0, 6, 5, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				inv_diag[5][i]->filled = false;
@@ -1992,11 +2071,16 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && !inv_diag[6][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 3, 0, 6, 6, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				inv_diag[6][i]->filled = false;
 				score++;
 			}
+		}
+		if (noCompanion) {
+			single_effect(Column, 3, 0, 6);
 		}
 	}//-------------end of 4th column
 
@@ -2019,78 +2103,87 @@ void is_good_col() {
 		i = 0;
 		if (!diag[1][i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true && diag[1][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 4, 0, 5, 1, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				diag[1][i]->filled = false;
 				score++;
 			}
-		}//end of 2nd diagonal
-
+		}
 
 		 //check the 3rd diagonal
 		i = 0;
 		if (diag[2][i]->filled == true && !diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 4, 0, 5, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[2][i]->filled = false;
 				score++;
 			}
-		}//end of 3rd diagonal
-
+		}
 
 		 //check the 4th diagonal
 		i = 0;
 		if (diag[3][i]->filled == true && diag[3][++i]->filled == true && !diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 4, 0, 5, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				diag[3][i]->filled = false;
 				score++;
 			}
-		}//end of 4th diagonal
-
+		}
 
 		 //check the 5th diagonal
 		i = 0;
 		if (diag[4][i]->filled == true && diag[4][++i]->filled == true && !diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 4, 0, 5, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[4][i]->filled = false;
 				score++;
 			}
-		}//end of 5th diagonal
-
+		}
 
 		 //check the 6th diagonal
 		i = 0;
 		if (diag[5][i]->filled == true && diag[5][++i]->filled == true && !diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 4, 0, 5, 5, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				diag[5][i]->filled = false;
 				score++;
 			}
-		}//end of 6th diagonal
-
+		}
 
 		 //check the 7th diagonal
 		i = 0;
 		if (diag[6][i]->filled == true && diag[6][++i]->filled == true && !diag[6][++i]->filled == true && diag[6][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 4, 0, 5, 6, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				diag[6][i]->filled = false;
 				score++;
 			}
-		}//end of 7th diagonal
+		}
 
 		//--------------check the inverse companion diagonal for the 5th column
 		//check the 1st inv_diagonal
 		i = 0;
 		if (inv_diag[0][i]->filled == true && !inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 4, 0, 5, 0, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				inv_diag[0][i]->filled = false;
@@ -2102,6 +2195,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[1][i]->filled == true && inv_diag[1][++i]->filled == true && !inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 4, 0, 5, 1, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				inv_diag[1][i]->filled = false;
@@ -2113,6 +2208,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && !inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 4, 0, 5, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[2][i]->filled = false;
@@ -2124,6 +2221,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 4, 0, 5, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				inv_diag[3][i]->filled = false;
@@ -2135,6 +2234,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && !inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 4, 0, 5, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[4][i]->filled = false;
@@ -2146,11 +2247,16 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[5][i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && inv_diag[5][++i]->filled == true && !inv_diag[5][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 4, 0, 5, 5, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				inv_diag[5][i]->filled = false;
 				score++;
 			}
+		}
+		if (noCompanion) {
+			single_effect(Column, 4, 0, 5);
 		}
 	}//---------end of 5th column
 
@@ -2172,6 +2278,8 @@ void is_good_col() {
 		i = 0;
 		if (!diag[2][i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true && diag[2][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 5, 0, 4, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[2][i]->filled = false;
@@ -2183,6 +2291,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[3][i]->filled == true && !diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 5, 0, 4, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				diag[3][i]->filled = false;
@@ -2194,6 +2304,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[4][i]->filled == true && !diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 5, 0, 4, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[4][i]->filled = false;
@@ -2205,6 +2317,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[5][i]->filled == true && !diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 5, 0, 4, 5, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				diag[5][i]->filled = false;
@@ -2216,6 +2330,8 @@ void is_good_col() {
 		i = 0;
 		if (diag[6][i]->filled == true && !diag[6][++i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 5, 0, 4, 6, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				diag[6][i]->filled = false;
@@ -2228,6 +2344,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[0][i]->filled == true && inv_diag[0][++i]->filled == true && !inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 5, 0, 4, 0, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				inv_diag[0][i]->filled = false;
@@ -2239,6 +2357,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[1][i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && !inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 5, 0, 4, 1, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				inv_diag[1][i]->filled = false;
@@ -2250,6 +2370,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && !inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 5, 0, 4, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[2][i]->filled = false;
@@ -2261,6 +2383,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 5, 0, 4, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				inv_diag[3][i]->filled = false;
@@ -2272,11 +2396,16 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[4][i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && inv_diag[4][++i]->filled == true && !inv_diag[4][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 5, 0, 4, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[4][i]->filled = false;
 				score++;
 			}
+		}
+		if (noCompanion) {
+			single_effect(Column, 5, 0, 4);
 		}
 	}//end of 6th column
 
@@ -2300,6 +2429,8 @@ void is_good_col() {
 		i = 0;
 		if (!diag[3][i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true && diag[3][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 6, 0, 3, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				diag[3][i]->filled = false;
@@ -2311,6 +2442,8 @@ void is_good_col() {
 		i = 0;
 		if (!diag[4][i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true && diag[4][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 6, 0, 3, 4, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				diag[4][i]->filled = false;
@@ -2322,6 +2455,8 @@ void is_good_col() {
 		i = 0;
 		if (!diag[5][i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true && diag[5][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 6, 0, 3, 5, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				diag[5][i]->filled = false;
@@ -2333,6 +2468,8 @@ void is_good_col() {
 		i = 0;
 		if (!diag[6][i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true && diag[6][++i]->filled == true) {
 
+			double_effect(Col_Diagonal, 6, 0, 3, 6, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				diag[6][i]->filled = false;
@@ -2346,6 +2483,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[0][i]->filled == true && inv_diag[0][++i]->filled == true && inv_diag[0][++i]->filled == true && !inv_diag[0][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 6, 0, 3, 0, 0, 3);
+			noCompanion = false;
 			for (i = 0; i < 4; i++) {
 
 				inv_diag[0][i]->filled = false;
@@ -2357,6 +2496,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[1][i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && inv_diag[1][++i]->filled == true && !inv_diag[1][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 6, 0, 3, 1, 0, 4);
+			noCompanion = false;
 			for (i = 0; i < 5; i++) {
 
 				inv_diag[1][i]->filled = false;
@@ -2368,6 +2509,8 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[2][i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && inv_diag[2][++i]->filled == true && !inv_diag[2][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 6, 0, 3, 2, 0, 5);
+			noCompanion = false;
 			for (i = 0; i < 6; i++) {
 
 				inv_diag[2][i]->filled = false;
@@ -2379,13 +2522,17 @@ void is_good_col() {
 		i = 0;
 		if (inv_diag[3][i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && inv_diag[3][++i]->filled == true && !inv_diag[3][++i]->filled == true) {
 
+			double_effect(Col_invDiagonal, 6, 0, 3, 3, 0, 6);
+			noCompanion = false;
 			for (i = 0; i < 7; i++) {
 
 				inv_diag[3][i]->filled = false;
 				score++;
 			}
 		}
-
+		if (noCompanion) {
+			single_effect(Column, 6, 0, 3);
+		}
 	}//end of 7th column
 
 }
@@ -3687,7 +3834,7 @@ void single_effect(CELL_PATTERN groupType, int rowNumber, int START, int END) {
 			col[rowNumber][i]->bitmap = al_clone_bitmap(animCell);
 			al_draw_tinted_bitmap(col[rowNumber][i]->bitmap, col[rowNumber][i]->cellClr, col[rowNumber][i]->x - 10, col[rowNumber][i]->y - 10, NULL);
 			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-			al_rest(0.2);
+			al_rest(0.18);
 			al_flip_display();
 		}
 	}
@@ -3698,7 +3845,7 @@ void single_effect(CELL_PATTERN groupType, int rowNumber, int START, int END) {
 			diag[rowNumber][i]->bitmap = al_clone_bitmap(animCell);
 			al_draw_tinted_bitmap(diag[rowNumber][i]->bitmap, diag[rowNumber][i]->cellClr, diag[rowNumber][i]->x - 10, diag[rowNumber][i]->y - 10, NULL);
 			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-			al_rest(0.2);
+			al_rest(0.18);
 			al_flip_display();
 		}
 	}
@@ -3709,7 +3856,7 @@ void single_effect(CELL_PATTERN groupType, int rowNumber, int START, int END) {
 			diag[rowNumber][i]->bitmap = al_clone_bitmap(animCell);
 			al_draw_tinted_bitmap(inv_diag[rowNumber][i]->bitmap, inv_diag[rowNumber][i]->cellClr, inv_diag[rowNumber][i]->x - 10, inv_diag[rowNumber][i]->y - 10, NULL);
 			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-			al_rest(0.2);
+			al_rest(0.18);
 			al_flip_display();
 		}
 	}
@@ -3720,7 +3867,7 @@ void double_effect(CELL_PATTERN groupType, int rowNum1, int START1, int END1, in
 	//-----column and diagonal
 	if (groupType == Col_Diagonal) {
 
-		for (i = START1,j=START2; i <= END1, j <= END2; i++,j++) {
+		for (i = START1; i <= END1; i++) {
 
 			col[rowNum1][i]->bitmap = al_clone_bitmap(animCell);
 
