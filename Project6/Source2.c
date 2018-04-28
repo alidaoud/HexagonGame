@@ -3685,13 +3685,13 @@ void help(ALLEGRO_EVENT event) {
 			al_draw_bitmap(icon[2], 440, 540, 0); //next arrow
 			al_draw_bitmap(icon[3], 440, 10, 0); //back to main menu
 
-			al_draw_textf(font2, al_map_rgb(255, 255, 255), 10, 10, 0, "Case 1:");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 340, 0, "1- Try to fill any column as shown ");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 370, 0, "above");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 410, 0, "2- No metter if the colors are ");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 440, 0, "different");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 480, 0, "3- One element can destroy more than");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 510, 0, "one column");
+			al_draw_textf(font2, al_map_rgb(139, 153, 53), 10, 10, 0, "Case 1:");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 340, 0, "1- Try to fill any column as shown ");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 40, 370, 0, "above");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 410, 0, "2- No metter if the colors are ");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 40, 440, 0, "different");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 480, 0, "3- One element can destroy more than");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 40, 510, 0, "one column");
 		}
 		else if (page == 2) {
 
@@ -3702,13 +3702,13 @@ void help(ALLEGRO_EVENT event) {
 			al_draw_bitmap(icon[2], 440, 540, 0); //next arrow
 			al_draw_bitmap(icon[3], 440, 10, 0); //back to main menu
 
-			al_draw_textf(font2, al_map_rgb(255, 255, 255), 10, 10, 0, "Case 2:");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 340, 0, "1- Try to fill any diagonal as shown ");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 370, 0, "above");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 410, 0, "2- No metter if the colors are ");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 440, 0, "different");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 480, 0, "3- One element can destroy more than");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 510, 0, "one diagonal");
+			al_draw_textf(font2, al_map_rgb(139, 153, 53), 10, 10, 0, "Case 2:");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 340, 0, "1- Try to fill any diagonal as shown ");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 40, 370, 0, "above");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 410, 0, "2- No metter if the colors are ");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 40, 440, 0, "different");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 480, 0, "3- One element can destroy more than");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 40, 510, 0, "one diagonal");
 		}
 		else if (page == 3) {
 
@@ -3719,13 +3719,13 @@ void help(ALLEGRO_EVENT event) {
 			al_draw_bitmap(icon[2], 440, 540, 0); //next arrow
 			al_draw_bitmap(icon[3], 440, 10, 0); //back to main menu
 
-			al_draw_textf(font2, al_map_rgb(255, 255, 255), 10, 10, 0, "Case 3:");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 340, 0, "1- Try to fill any inverse diagonal ");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 370, 0, "as shown above");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 410, 0, "2- No metter if the colors are ");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 440, 0, "different");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 480, 0, "3- One element can destroy more than");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 510, 0, "one inverse diagonal");
+			al_draw_textf(font2, al_map_rgb(139, 153, 53), 10, 10, 0, "Case 3:");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 340, 0, "1- Try to fill any inverse diagonal ");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 40, 370, 0, "as shown above");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 410, 0, "2- No metter if the colors are ");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 40, 440, 0, "different");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 480, 0, "3- One element can destroy more than");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 40, 510, 0, "one inverse diagonal");
 		}
 		else if (page == 4) {
 
@@ -3735,13 +3735,13 @@ void help(ALLEGRO_EVENT event) {
 			al_draw_bitmap(icon[1], 10, 540, 0); //back arrow
 			al_draw_bitmap(icon[3], 440, 10, 0); //back to main menu
 
-			al_draw_textf(font2, al_map_rgb(255, 255, 255), 10, 10, 0, "Special cases:");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 340, 0, "Don't forget to try the special cases");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 25, 370, 0, "to destroy more cells");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 410, 0, "You can try:");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 450, 0, "* column and diagonal");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 480, 0, "* column and inverse diagonal");
-			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 510, 0, "* column, diagonal, and inverse diagonal");
+			al_draw_textf(font2, al_map_rgb(139, 153, 53), 10, 10, 0, "Special cases:");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 340, 0, "Don't forget to try the special cases");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 25, 370, 0, "to destroy more cells");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 410, 0, "You can try:");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 450, 0, "* column and diagonal");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 480, 0, "* column and inverse diagonal");
+			al_draw_textf(helpFont, al_map_rgb(163, 157, 155), 10, 510, 0, "* column, diagonal, and inverse diagonal");
 		}
 
 		al_flip_display();
@@ -4113,6 +4113,15 @@ void double_effect(CELL_PATTERN groupType, int rowNum1, int START1, int END1, in
 		}
 		al_flip_display();
 		al_rest(0.5);
+
+		//I used these loops to avoid overload in memory, so i get the original bitmap only for the effected cells instead of 36 cells every single time
+		for (i = START1; i <= END1; i++) {
+			col[rowNum1][i]->bitmap = al_clone_bitmap(bitmap);
+		}
+
+		for (i = START2; i <= END2; i++) {
+			diag[rowNum2][i]->bitmap = al_clone_bitmap(bitmap);
+		}
 	}
 
 	//-----column and inverse diagonal
@@ -4136,6 +4145,15 @@ void double_effect(CELL_PATTERN groupType, int rowNum1, int START1, int END1, in
 		}
 		al_flip_display();
 		al_rest(0.5);
+
+		//I used these loops to avoid overload in memory, so i get the original bitmap only for the effected cells instead of 36 cells every single time
+		for (i = START1; i <= END1; i++) {
+			col[rowNum1][i]->bitmap = al_clone_bitmap(bitmap);
+		}
+
+		for (i = START2; i <= END2; i++) {
+			inv_diag[rowNum2][i]->bitmap = al_clone_bitmap(bitmap);
+		}
 	}
 
 	//-----diagonal and inverse diagonal
@@ -4160,6 +4178,15 @@ void double_effect(CELL_PATTERN groupType, int rowNum1, int START1, int END1, in
 		}
 		al_flip_display();
 		al_rest(0.5);
+
+		//I used these loops to avoid overload in memory, so i get the original bitmap only for the effected cells instead of 36 cells every single time
+		for (i = START1; i <= END1; i++) {
+			diag[rowNum1][i]->bitmap = al_clone_bitmap(bitmap);
+		}
+		for (i = START2; i <= END2; i++) {
+			inv_diag[rowNum2][i]->bitmap = al_clone_bitmap(bitmap);
+		}
+
 	}
 }
 

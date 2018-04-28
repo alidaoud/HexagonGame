@@ -1,1 +1,1 @@
-Help function have been added, the overload problem in the RAM have been solved, and some additions on shutdown function
+a missing part of the "memory overload" problem have been fixed
