@@ -1,1 +1,1 @@
-both single and double effect are working with all columns and their companions from diagonals and inverse diagonals
+Help function have been added, the overload problem in the RAM have been solved, and some additions on shutdown function

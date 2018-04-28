@@ -88,6 +88,7 @@ void shutdown();
 void check_move();
 void rand_elem();
 void menu(ALLEGRO_EVENT event);
+void help(ALLEGRO_EVENT event);
 void game_over(ALLEGRO_EVENT event);
 void check_end();
 void check_end2();
@@ -106,6 +107,8 @@ ALLEGRO_COLOR background_color;
 
 ALLEGRO_FONT *font;
 ALLEGRO_FONT *font2;
+ALLEGRO_FONT *menuFont;
+ALLEGRO_FONT *helpFont; //try to make them an array
 
 ALLEGRO_BITMAP *bitmap;
 ALLEGRO_BITMAP *bitmap2;
@@ -114,9 +117,10 @@ ALLEGRO_BITMAP *startClick; //change it to text
 ALLEGRO_BITMAP *gameOver;
 //ALLEGRO_BITMAP *tempBitmap;
 ALLEGRO_BITMAP *menuBitmap;
-ALLEGRO_BITMAP *icon[2];
+ALLEGRO_BITMAP *icon[4];
 ALLEGRO_BITMAP *elmBitmap[9];
 ALLEGRO_BITMAP *animCell;
+ALLEGRO_BITMAP *helpBitmap[4];
 
 ALLEGRO_SAMPLE *bgSound;
 ALLEGRO_SAMPLE *clickSound;
@@ -142,6 +146,7 @@ int c1, c2, c3;
 int main() {
 
 	init();
+	//help(event);
 	Home(event);
 	
 	rand_elem();
@@ -216,6 +221,8 @@ void init() {
 
 	font = al_load_ttf_font("pirulen rg.ttf", 22, 0);
 	font2 = al_load_ttf_font("impact.ttf", 35, 0);
+	menuFont = al_load_ttf_font("PermanentMarker.ttf", 63, 0);
+	helpFont = al_load_ttf_font("IndieFlower.ttf", 30, 0);
 
 	randColr[0] = al_map_rgb(244, 47, 200);
 	randColr[1] = al_map_rgb(212, 169, 51);
@@ -252,7 +259,16 @@ void init() {
 	elmBitmap[7] = al_load_bitmap("3C04.png");
 	elmBitmap[8] = al_load_bitmap("3C05.png");
 
+	helpBitmap[0] = al_load_bitmap("help1.png");
+	helpBitmap[1] = al_load_bitmap("help2.png");
+	helpBitmap[2] = al_load_bitmap("help3.png");
+	helpBitmap[3] = al_load_bitmap("help4.png");
+
 	icon[0] = al_load_bitmap("pause.png");
+	icon[1] = al_load_bitmap("back.png");
+	icon[2] = al_load_bitmap("next.png");
+	icon[3] = al_load_bitmap("back2.png");
+
 	animCell = al_load_bitmap("testForAnim.png");
 
 	bgSound = al_load_sample("sound.wav");
@@ -416,7 +432,6 @@ void inv_diag_init() {
 
 void cell_update() {
 
-	//int c[3] = { c1,c2,c3 };
 
 	for (i = 0; i < 37; i++) {
 
@@ -426,12 +441,18 @@ void cell_update() {
 			cell[i].id = i;
 			//cell[i].cellClr = al_map_rgb(214, 208, 208);
 			cell[i].cellClr = al_map_rgb(100, 50, 50);
+			cell[i].bitmap = al_clone_bitmap(bitmap); //i made the clone be done once when the game started 
 		}
-
+		
 		if (cell[i].filled == false) {
+
+			if (cell[i].bitmap == animCell) {
+
+				cell[i].bitmap = al_clone_bitmap(bitmap);
+			}
 			//cell[i].bitmap = al_load_bitmap("emptyCell.png");
 			cell[i].cellClr = al_map_rgb(255, 255, 255);
-			cell[i].bitmap = al_clone_bitmap(bitmap);
+			//cell[i].bitmap = al_clone_bitmap(bitmap); //the clone here was making overload in memory
 			al_draw_tinted_bitmap(cell[i].bitmap, cell[i].cellClr, cell[i].x, cell[i].y, NULL);
 			//al_draw_bitmap(cell[i].bitmap, cell[i].x, cell[i].y, NULL);
 		}
@@ -1436,6 +1457,7 @@ void is_good_col() {
 		//double_effect();
 		printf("WOW ! \n");
 		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+		//cell_update();
 		for (i = 0; i < 4; i++) {
 
 			col[0][i]->filled = false;
@@ -1535,6 +1557,7 @@ void is_good_col() {
 			}
 		}
 		//check the 7th inv_diagonal
+		i = 0;
 		if (!inv_diag[6][i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true && inv_diag[6][++i]->filled == true) {
 
 			double_effect(Col_invDiagonal, 0, 0, 3, 6, 0, 3);
@@ -2534,6 +2557,7 @@ void is_good_col() {
 			single_effect(Column, 6, 0, 3);
 		}
 	}//end of 7th column
+	cell_update();
 
 }
 
@@ -3228,7 +3252,7 @@ void game_loop(ALLEGRO_EVENT event) {
 		//al_play_sample(bgSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, 0);
 
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-			//done = true;
+			done = true;
 		}
 
 		if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
@@ -3258,7 +3282,7 @@ void game_loop(ALLEGRO_EVENT event) {
 					move[i].state = true;
 					al_play_sample(clickSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 
-					check_move();
+					//check_move();
 					if (move[i].state) {
 
 						activeElm = i;
@@ -3273,7 +3297,7 @@ void game_loop(ALLEGRO_EVENT event) {
 					move[i].state = true;
 					al_play_sample(clickSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 
-					check_move();
+					//check_move();
 					if (move[i].state) {
 
 						activeElm = i;
@@ -3284,11 +3308,10 @@ void game_loop(ALLEGRO_EVENT event) {
 					move[i].state = true;
 					al_play_sample(clickSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 
-					check_move();
+					//check_move();
 					if (move[i].state) {
 
 						activeElm = i;
-
 					}
 				}
 				else if (event.mouse.button & 2) // Add Here more cond. in order to avoid problem that happens when two element become over each other
@@ -3298,10 +3321,9 @@ void game_loop(ALLEGRO_EVENT event) {
 					elem[i].y = elem[i].orgY;
 				}
 			}
+			check(event); //the order is very important here check function must be before the check_end function definetly
 			check_end2();
-			check(event);
-
-			//check_end();
+			check(event); 
 
 		}
 		draw();
@@ -3317,17 +3339,60 @@ void shutdown(void) {
 		if (queue)
 			al_destroy_event_queue(queue);
 
-		if (timer) {
+		if (timer) 
 			al_destroy_timer(timer);
-		}
+		
 		if (display)
 			al_destroy_display(display);
+
+		//destroy all bitmaps
 		if (bitmap)
 			al_destroy_bitmap(bitmap);
-		if (bitmap2) {
-			al_destroy_bitmap(bitmap2);
-		}
 
+		if (bitmap2)
+			al_destroy_bitmap(bitmap2);
+
+		if (hexagonal)
+			al_destroy_bitmap(hexagonal);
+
+		if (startClick)
+			al_destroy_bitmap(startClick);
+
+		if (gameOver)
+			al_destroy_bitmap(gameOver);
+
+		if (menuBitmap)
+			al_destroy_bitmap(menuBitmap);
+
+		//destroy all samples
+		if (animCell)
+			al_destroy_bitmap(animCell);
+
+		if (bgSound)
+			al_destroy_sample(bgSound);
+
+		if (endSound)
+			al_destroy_sample(endSound);
+
+		if (winSound)
+			al_destroy_sample(winSound);
+
+		if (endSound)
+			al_destroy_sample(endSound);
+
+		//destroy all fonts
+		//if (font)
+		//	al_destroy_font(font);
+
+		//if (font2)
+		//	al_destroy_font(font2);
+
+		//if (menuFont)
+			//al_destroy_font(menuFont);
+
+		al_uninstall_mouse();
+		al_uninstall_keyboard();
+		al_uninstall_audio();
 	}
 	
 }
@@ -3336,7 +3401,6 @@ void Home(ALLEGRO_EVENT event) {
 
 	bool started = false;
 
-
 	while (!started)
 	{
 		al_wait_for_event(queue, &event);
@@ -3344,22 +3408,30 @@ void Home(ALLEGRO_EVENT event) {
 		al_clear_to_color(al_map_rgb(175, 219, 238));
 		al_draw_bitmap(hexagonal, originX, originY - 50, NULL);
 		
-		al_draw_tinted_bitmap(startClick, al_map_rgb(43, 96, 59), buttonX, buttonY, NULL);
+		//al_draw_tinted_bitmap(startClick, al_map_rgb(43, 96, 59), buttonX, buttonY, NULL);
 		//al_rest(1);
 		//al_start_timer(timer2);
-		al_draw_tinted_bitmap(startClick, al_map_rgb(175, 219, 238), buttonX, buttonY, NULL);
+		//al_draw_tinted_bitmap(startClick, al_map_rgb(175, 219, 238), buttonX, buttonY, NULL);
 
-		if (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+		//if (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
 
-			al_draw_tinted_bitmap(startClick, al_map_rgb(31, 251, 165), buttonX, buttonY, NULL);
-		}
-		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+			if ((event.mouse.x >= buttonX) && (event.mouse.x <= buttonX + 260) && (event.mouse.y >= buttonY) && (event.mouse.y <= buttonY + 35)) {
+
+				al_draw_tinted_bitmap(startClick, al_map_rgb(108, 0, 255), buttonX, buttonY, NULL);
+				printf("over %d\n", i++);
+			}
+			else
+			{
+				al_draw_tinted_bitmap(startClick, al_map_rgb(175, 219, 238), buttonX, buttonY, NULL);
+			}
+		//}
+		//else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 
 			if ((event.mouse.button & 1) && (event.mouse.x >= buttonX) && (event.mouse.x <= buttonX + 260) && (event.mouse.y >= buttonY) && (event.mouse.y <= buttonY + 35)) {
 				printf("clicked\n");
 				started = true;
 			}
-		}
+		//}
 		al_flip_display();
 	}
 	
@@ -3367,8 +3439,7 @@ void Home(ALLEGRO_EVENT event) {
 
 void rand_elem() {
 
-	//colr_generator();
-	//elX = elemX, elY = elemY;
+
 	srand(time(NULL));
 
 	int choice, e1, e2, e3;
@@ -3466,6 +3537,15 @@ void game_over(ALLEGRO_EVENT event) {
 
 		al_wait_for_event(queue, &event);
 
+		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+			shutdown();
+			exit(-1);
+		}
+
+		if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+			//done = true;
+		}
+
 		if (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
 
 			//al_draw_tinted_bitmap(startClick, al_map_rgb(31, 251, 165), buttonX, buttonY, NULL);
@@ -3502,18 +3582,32 @@ void game_over(ALLEGRO_EVENT event) {
 void menu(ALLEGRO_EVENT event) {
 
 	al_draw_bitmap(menuBitmap, 0, 0, NULL);
+//	al_draw_textf(menuFont, al_map_rgb(250, 19, 95), 130, 106.5, 0, "resumeww");
+//	al_draw_textf(menuFont, al_map_rgb(250, 19, 95), 130, 230, 0, "settingww");
+//	al_draw_textf(menuFont, al_map_rgb(250, 19, 95), 130, 330, 0, "helpww");
+//	al_draw_textf(menuFont, al_map_rgb(250, 19, 95), 130, 425, 0, "quitww");
+
 
 	while (pause)
 	{
 
 		al_wait_for_event(queue, &event);
 
+		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+			shutdown();
+			exit(-1);
+		}
+
+		if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+			//done = true;
+		}
+
 		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 
 			if ((event.mouse.button & 1) && (event.mouse.x >= 125) && (event.mouse.x <= 360) && (event.mouse.y >= 125) && (event.mouse.y <= 170)) {
+
 				printf("resume\n");
 				pause = false;
-
 			}
 			else if ((event.mouse.button & 1) && (event.mouse.x >= 125) && (event.mouse.x <= 360) && (event.mouse.y >= 235) && (event.mouse.y <= 273)) {
 
@@ -3522,6 +3616,7 @@ void menu(ALLEGRO_EVENT event) {
 			else if ((event.mouse.button & 1) && (event.mouse.x >= 175) && (event.mouse.x <= 318) && (event.mouse.y >= 330) && (event.mouse.y <= 370)) {
 
 				printf("Help\n");
+				help(event);
 			}
 			else if ((event.mouse.button & 1) && (event.mouse.x >= 185) && (event.mouse.x <= 314) && (event.mouse.y >= 425) && (event.mouse.y <= 465)) {
 
@@ -3536,6 +3631,125 @@ void menu(ALLEGRO_EVENT event) {
 
 
  }
+
+void help(ALLEGRO_EVENT event) {
+
+	bool help = true;
+	int page = 1;
+
+	al_clear_to_color(al_map_rgb(53, 58, 53));
+	al_draw_bitmap(icon[1], 10, 540, 0); //next arrow
+	al_draw_bitmap(icon[2], 440, 540, 0); //back arrow
+	al_draw_bitmap(icon[3], 440, 10, 0); //back to main menu
+
+	while (help)
+	{
+		al_wait_for_event(queue, &event);
+
+		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+			shutdown();
+			exit(-1);
+		}
+
+		if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+			//done = true;
+		}
+
+		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+
+			if ((event.mouse.button & 1) && (event.mouse.x >= 10) && (event.mouse.x <= 60) && (event.mouse.y >= 540) && (event.mouse.y <= 590)) {
+
+				if (page > 1)
+					page--;
+				else
+					continue;
+
+			}
+			else if ((event.mouse.button & 1) && (event.mouse.x >= 440) && (event.mouse.x <= 490) && (event.mouse.y >= 540) && (event.mouse.y <= 590)) {
+
+				if (page < 4)
+					page++;
+				else
+					continue;
+				
+			}else if ((event.mouse.button & 1) && (event.mouse.x >= 440) && (event.mouse.x <= 490) && (event.mouse.y >= 10) && (event.mouse.y <= 60)) {
+
+				game_loop(event);
+			}
+		}
+		
+		if (page == 1) {
+			al_clear_to_color(al_map_rgb(53, 58, 53));
+			al_draw_bitmap(helpBitmap[0], 50, 50, 0);
+
+			al_draw_bitmap(icon[2], 440, 540, 0); //next arrow
+			al_draw_bitmap(icon[3], 440, 10, 0); //back to main menu
+
+			al_draw_textf(font2, al_map_rgb(255, 255, 255), 10, 10, 0, "Case 1:");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 340, 0, "1- Try to fill any column as shown ");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 370, 0, "above");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 410, 0, "2- No metter if the colors are ");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 440, 0, "different");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 480, 0, "3- One element can destroy more than");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 510, 0, "one column");
+		}
+		else if (page == 2) {
+
+			al_clear_to_color(al_map_rgb(53, 58, 53));
+			al_draw_bitmap(helpBitmap[1], 50, 51, 0);
+
+			al_draw_bitmap(icon[1], 10, 540, 0); //back arrow
+			al_draw_bitmap(icon[2], 440, 540, 0); //next arrow
+			al_draw_bitmap(icon[3], 440, 10, 0); //back to main menu
+
+			al_draw_textf(font2, al_map_rgb(255, 255, 255), 10, 10, 0, "Case 2:");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 340, 0, "1- Try to fill any diagonal as shown ");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 370, 0, "above");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 410, 0, "2- No metter if the colors are ");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 440, 0, "different");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 480, 0, "3- One element can destroy more than");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 510, 0, "one diagonal");
+		}
+		else if (page == 3) {
+
+			al_clear_to_color(al_map_rgb(53, 58, 53));
+			al_draw_bitmap(helpBitmap[2], 50, 49, 0);
+
+			al_draw_bitmap(icon[1], 10, 540, 0); //back arrow
+			al_draw_bitmap(icon[2], 440, 540, 0); //next arrow
+			al_draw_bitmap(icon[3], 440, 10, 0); //back to main menu
+
+			al_draw_textf(font2, al_map_rgb(255, 255, 255), 10, 10, 0, "Case 3:");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 340, 0, "1- Try to fill any inverse diagonal ");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 370, 0, "as shown above");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 410, 0, "2- No metter if the colors are ");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 440, 0, "different");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 480, 0, "3- One element can destroy more than");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 40, 510, 0, "one inverse diagonal");
+		}
+		else if (page == 4) {
+
+			al_clear_to_color(al_map_rgb(53, 58, 53));
+			al_draw_bitmap(helpBitmap[3], 50, 49, 0);
+
+			al_draw_bitmap(icon[1], 10, 540, 0); //back arrow
+			al_draw_bitmap(icon[3], 440, 10, 0); //back to main menu
+
+			al_draw_textf(font2, al_map_rgb(255, 255, 255), 10, 10, 0, "Special cases:");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 340, 0, "Don't forget to try the special cases");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 25, 370, 0, "to destroy more cells");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 410, 0, "You can try:");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 450, 0, "* column and diagonal");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 480, 0, "* column and inverse diagonal");
+			al_draw_textf(helpFont, al_map_rgb(250, 19, 95), 10, 510, 0, "* column, diagonal, and inverse diagonal");
+		}
+
+		al_flip_display();
+	}
+
+
+
+}
 
 void check_end() {
 
@@ -3834,8 +4048,12 @@ void single_effect(CELL_PATTERN groupType, int rowNumber, int START, int END) {
 			col[rowNumber][i]->bitmap = al_clone_bitmap(animCell);
 			al_draw_tinted_bitmap(col[rowNumber][i]->bitmap, col[rowNumber][i]->cellClr, col[rowNumber][i]->x - 10, col[rowNumber][i]->y - 10, NULL);
 			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-			al_rest(0.18);
+			al_rest(0.18);	
 			al_flip_display();
+		}
+		for (i = START; i <= END; i++) {
+			//I used this to avoid over load in memory, so i get the original bitmap only for the effected cells instead of 36 cells every single time
+			col[rowNumber][i]->bitmap = al_clone_bitmap(bitmap);
 		}
 	}
 	else if (groupType == Diagonal) {
@@ -3845,8 +4063,12 @@ void single_effect(CELL_PATTERN groupType, int rowNumber, int START, int END) {
 			diag[rowNumber][i]->bitmap = al_clone_bitmap(animCell);
 			al_draw_tinted_bitmap(diag[rowNumber][i]->bitmap, diag[rowNumber][i]->cellClr, diag[rowNumber][i]->x - 10, diag[rowNumber][i]->y - 10, NULL);
 			al_play_sample(animSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-			al_rest(0.18);
+			al_rest(0.18);	
 			al_flip_display();
+		}
+		for (i = START; i <= END; i++) {
+			//I used this to avoid over load in memory, so i get the original bitmap only for the effected cells instead of 36 cells every single time
+			diag[rowNumber][i]->bitmap = al_clone_bitmap(bitmap);
 		}
 	}
 	else if (groupType == invDiagonal) {
@@ -3859,7 +4081,13 @@ void single_effect(CELL_PATTERN groupType, int rowNumber, int START, int END) {
 			al_rest(0.18);
 			al_flip_display();
 		}
+		for (i = START; i <= END; i++) { 
+			//I used this to avoid over load in memory, so i get the original bitmap only for the effected cells instead of 36 cells every single time
+			diag[rowNumber][i]->bitmap = al_clone_bitmap(bitmap);
+		}
 	}
+	
+	al_flip_display();
 }
 
 void double_effect(CELL_PATTERN groupType, int rowNum1, int START1, int END1, int rowNum2, int START2, int END2) {
