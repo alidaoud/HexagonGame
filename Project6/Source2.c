@@ -113,9 +113,10 @@ ALLEGRO_FONT *helpFont; //try to make them an array
 ALLEGRO_BITMAP *bitmap;
 ALLEGRO_BITMAP *bitmap2;
 ALLEGRO_BITMAP *hexagonal;
-ALLEGRO_BITMAP *startClick; //change it to text
+ALLEGRO_BITMAP *startClick;
+ALLEGRO_BITMAP *homeOptions[4];
 ALLEGRO_BITMAP *gameOver;
-//ALLEGRO_BITMAP *tempBitmap;
+ALLEGRO_BITMAP *tempBitmap;
 ALLEGRO_BITMAP *menuBitmap;
 ALLEGRO_BITMAP *icon[4];
 ALLEGRO_BITMAP *elmBitmap[9];
@@ -244,7 +245,7 @@ void init() {
 	startClick = al_load_bitmap("clickStart.png");
 	//gameOver = al_load_bitmap("gameOver.png");
 	gameOver = al_load_bitmap("gameOver2.png");
-	//tempBitmap = al_load_bitmap("clrCell01.png");
+	tempBitmap = al_load_bitmap("backGround.png");
 	menuBitmap = al_load_bitmap("menu.png");
 
 	elmBitmap[0] = al_load_bitmap("elmCell.png");
@@ -263,6 +264,11 @@ void init() {
 	helpBitmap[1] = al_load_bitmap("help2.png");
 	helpBitmap[2] = al_load_bitmap("help3.png");
 	helpBitmap[3] = al_load_bitmap("help4.png");
+	
+	homeOptions[0] = al_load_bitmap("homeHeader.png");
+	homeOptions[1] = al_load_bitmap("clickStart.png");
+	homeOptions[2] = al_load_bitmap("selectLevel.png");
+	homeOptions[3] = al_load_bitmap("quit.png");
 
 	icon[0] = al_load_bitmap("pause.png");
 	icon[1] = al_load_bitmap("back.png");
@@ -3390,9 +3396,9 @@ void shutdown(void) {
 		//if (menuFont)
 			//al_destroy_font(menuFont);
 
-		al_uninstall_mouse();
-		al_uninstall_keyboard();
-		al_uninstall_audio();
+		//al_uninstall_mouse();
+		//al_uninstall_keyboard();
+		//al_uninstall_audio();
 	}
 	
 }
@@ -3405,36 +3411,48 @@ void Home(ALLEGRO_EVENT event) {
 	{
 		al_wait_for_event(queue, &event);
 
-		al_clear_to_color(al_map_rgb(175, 219, 238));
-		al_draw_bitmap(hexagonal, originX, originY - 50, NULL);
-		
-		//al_draw_tinted_bitmap(startClick, al_map_rgb(43, 96, 59), buttonX, buttonY, NULL);
-		//al_rest(1);
-		//al_start_timer(timer2);
-		//al_draw_tinted_bitmap(startClick, al_map_rgb(175, 219, 238), buttonX, buttonY, NULL);
+		//al_clear_to_color(al_map_rgb(175, 219, 238));
+		//al_draw_bitmap(hexagonal, originX, originY - 50, NULL);
 
-		//if (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+		al_draw_bitmap(tempBitmap, 0, 0, 0);
+		al_draw_tinted_bitmap(homeOptions[0], al_map_rgb(255, 255, 255), 5, 75, NULL);
+		al_draw_tinted_bitmap(homeOptions[1], al_map_rgb(169, 169, 169), 120, 250, NULL);
+		al_draw_tinted_bitmap(homeOptions[2], al_map_rgb(169, 169, 169), 120, 350, NULL);
+		al_draw_tinted_bitmap(homeOptions[3], al_map_rgb(169, 169, 169), 120, 450, NULL);
 
-			if ((event.mouse.x >= buttonX) && (event.mouse.x <= buttonX + 260) && (event.mouse.y >= buttonY) && (event.mouse.y <= buttonY + 35)) {
+		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+			shutdown();
+			exit(-1);
+		}
 
-				al_draw_tinted_bitmap(startClick, al_map_rgb(108, 0, 255), buttonX, buttonY, NULL);
-				printf("over %d\n", i++);
-			}
-			else
-			{
-				al_draw_tinted_bitmap(startClick, al_map_rgb(175, 219, 238), buttonX, buttonY, NULL);
-			}
-		//}
-		//else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+		if ((event.mouse.x >= 120) && (event.mouse.x <= 380) && (event.mouse.y >= 250) && (event.mouse.y <= 285)) {
 
-			if ((event.mouse.button & 1) && (event.mouse.x >= buttonX) && (event.mouse.x <= buttonX + 260) && (event.mouse.y >= buttonY) && (event.mouse.y <= buttonY + 35)) {
-				printf("clicked\n");
+			al_draw_tinted_bitmap(homeOptions[1], al_map_rgb(108, 0, 255), 120, 250, NULL);
+			al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+			if (event.mouse.button & 1) {
 				started = true;
 			}
-		//}
+		}
+		if ((event.mouse.x >= 140) && (event.mouse.x <= 360) && (event.mouse.y >= 350) && (event.mouse.y <= 385)) {
+
+			al_draw_tinted_bitmap(homeOptions[2], al_map_rgb(108, 0, 255), 120, 350, NULL);
+			al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+			if (event.mouse.button & 1) {
+				printf("level\n");
+			}
+		}
+		if ((event.mouse.x >= 200) && (event.mouse.x <= 290) && (event.mouse.y >= 450) && (event.mouse.y <= 485)) {
+
+			al_draw_tinted_bitmap(homeOptions[3], al_map_rgb(108, 0, 255), 120, 450, NULL);
+			al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+			if (event.mouse.button & 1) {
+				shutdown();
+				exit(-1);
+			}
+		}
 		al_flip_display();
 	}
-	
+
 }
 
 void rand_elem() {
@@ -3582,11 +3600,6 @@ void game_over(ALLEGRO_EVENT event) {
 void menu(ALLEGRO_EVENT event) {
 
 	al_draw_bitmap(menuBitmap, 0, 0, NULL);
-//	al_draw_textf(menuFont, al_map_rgb(250, 19, 95), 130, 106.5, 0, "resumeww");
-//	al_draw_textf(menuFont, al_map_rgb(250, 19, 95), 130, 230, 0, "settingww");
-//	al_draw_textf(menuFont, al_map_rgb(250, 19, 95), 130, 330, 0, "helpww");
-//	al_draw_textf(menuFont, al_map_rgb(250, 19, 95), 130, 425, 0, "quitww");
-
 
 	while (pause)
 	{
@@ -3680,7 +3693,7 @@ void help(ALLEGRO_EVENT event) {
 		
 		if (page == 1) {
 			al_clear_to_color(al_map_rgb(53, 58, 53));
-			al_draw_bitmap(helpBitmap[0], 50, 50, 0);
+			al_draw_bitmap(helpBitmap[0], 53, 65, 0);
 
 			al_draw_bitmap(icon[2], 440, 540, 0); //next arrow
 			al_draw_bitmap(icon[3], 440, 10, 0); //back to main menu
@@ -3696,7 +3709,7 @@ void help(ALLEGRO_EVENT event) {
 		else if (page == 2) {
 
 			al_clear_to_color(al_map_rgb(53, 58, 53));
-			al_draw_bitmap(helpBitmap[1], 50, 51, 0);
+			al_draw_bitmap(helpBitmap[1], 53, 66, 0);
 
 			al_draw_bitmap(icon[1], 10, 540, 0); //back arrow
 			al_draw_bitmap(icon[2], 440, 540, 0); //next arrow
@@ -3713,7 +3726,7 @@ void help(ALLEGRO_EVENT event) {
 		else if (page == 3) {
 
 			al_clear_to_color(al_map_rgb(53, 58, 53));
-			al_draw_bitmap(helpBitmap[2], 50, 49, 0);
+			al_draw_bitmap(helpBitmap[2], 53, 64, 0);
 
 			al_draw_bitmap(icon[1], 10, 540, 0); //back arrow
 			al_draw_bitmap(icon[2], 440, 540, 0); //next arrow
@@ -3730,7 +3743,7 @@ void help(ALLEGRO_EVENT event) {
 		else if (page == 4) {
 
 			al_clear_to_color(al_map_rgb(53, 58, 53));
-			al_draw_bitmap(helpBitmap[3], 50, 49, 0);
+			al_draw_bitmap(helpBitmap[3], 53, 65, 0);
 
 			al_draw_bitmap(icon[1], 10, 540, 0); //back arrow
 			al_draw_bitmap(icon[3], 440, 10, 0); //back to main menu

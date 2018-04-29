@@ -1,1 +1,2 @@
-a missing part of the "memory overload" problem have been fixed
+The 'Home' function have changed totally(new backGround, new options, new effect)
+just level option doesn't work yet
