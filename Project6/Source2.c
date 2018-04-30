@@ -34,8 +34,6 @@
 #define cellWidth 30
 #define cellHeight 36
 
-#define buttonX 120
-#define buttonY 390
 
 typedef enum CELL_PATTERN
 {
@@ -74,16 +72,13 @@ void Home(ALLEGRO_EVENT event);
 void draw();
 void init();
 void cell_update();
-void test(ALLEGRO_EVENT event);
 void cols_init();
 void diag_init();
 void inv_diag_init();
-void fill_all();
 void check(ALLEGRO_EVENT event);
 void is_good_col();
 void is_good_diag();
 void is_good_inv_diag();
-void user_input(ALLEGRO_EVENT event);
 void game_loop(ALLEGRO_EVENT event);
 void shutdown();
 void check_move();
@@ -93,7 +88,6 @@ void help(ALLEGRO_EVENT event);
 void select_level(ALLEGRO_EVENT event);
 void game_over(ALLEGRO_EVENT event);
 void check_end();
-void check_end2();
 void check_level();
 void single_effect(CELL_PATTERN groupType, int , int, int);
 void double_effect(CELL_PATTERN groupType, int, int, int, int, int ,int);
@@ -105,26 +99,21 @@ ALLEGRO_TIMER* timer;
 ALLEGRO_EVENT event;
 
 ALLEGRO_COLOR randColr[6];
-//ALLEGRO_COLOR tempColr;
 ALLEGRO_COLOR background_color;
 
-ALLEGRO_FONT *font;
-ALLEGRO_FONT *font2;
-ALLEGRO_FONT *menuFont;
-ALLEGRO_FONT *helpFont; 
-ALLEGRO_FONT *homeFont; //try to make them an array
+ALLEGRO_FONT *font, *font2;
+ALLEGRO_FONT *menuFont, *helpFont, *homeFont;
 
-ALLEGRO_BITMAP *bitmap;
+ALLEGRO_BITMAP *bitmap, *test;
 ALLEGRO_BITMAP *hexagonal;
-ALLEGRO_BITMAP *startClick;
-ALLEGRO_BITMAP *homeOptions[4];
 ALLEGRO_BITMAP *gameOver;
-ALLEGRO_BITMAP *tempBitmap;
+ALLEGRO_BITMAP *backGround;
 ALLEGRO_BITMAP *menuBitmap;
+ALLEGRO_BITMAP *animCell;
 ALLEGRO_BITMAP *icon[10];
 ALLEGRO_BITMAP *elmBitmap[9];
-ALLEGRO_BITMAP *animCell;
 ALLEGRO_BITMAP *helpBitmap[4];
+ALLEGRO_BITMAP *homeOptions[4];
 ALLEGRO_BITMAP *soundIcon;
 
 ALLEGRO_SAMPLE *bgSound;
@@ -139,36 +128,24 @@ ALLEGRO_MOUSE_STATE mState;
 
 HEXAGONAL cell[37];
 HEXAGONAL*col[7][7], *diag[7][7], *inv_diag[7][7];
-ELEMNET elem[4], rndElem[9], testEl[3];
+ELEMNET elem[4], rndElem[9];
 ACTION move[3];
 CELL_PATTERN groupType;
 
+bool done;
 int j, i, k, activeElm, activeCell;
-bool done, game_started, lost, pause;
-static int score = 0,highScore = 0, stars = 0, gameLevel = 1, counter[8];
+static int score = 0,highScore = 0,
+stars = 0, gameLevel = 1, counter[8];
 
 
 int main() {
 
 	init();
-	//help(event);
-	//game_over(event);
 	Home(event);
-	
-	rand_elem();
-	cell_update();
-	cols_init();
-	diag_init();
-	inv_diag_init();
-
 	draw();
-	//game_over(event);
-	game_loop(event);
-	//game_over();
+	game_loop(event);	
 	shutdown();
 
-
-	system("pause>null");
 	return 0;
 }
 
@@ -196,7 +173,6 @@ void init() {
 	}
 
 	timer = al_create_timer(1.0 / 60);
-	//timer2 = al_create_timer(1.0 / 1);
 
 	if (!timer) {
 
@@ -218,81 +194,84 @@ void init() {
 
 		al_show_native_message_box(NULL, "Allegro Error", "Error", "Failed to create event queue !", NULL, NULL);
 	}
-
+	
+	//initialize addons
 	al_init_image_addon();
 	al_init_font_addon();
 	al_init_ttf_addon();
 	al_init_primitives_addon();
 	al_init_acodec_addon();
 
-	font = al_load_ttf_font("pirulen rg.ttf", 22, 0);
-	font2 = al_load_ttf_font("impact.ttf", 35, 0);
-	menuFont = al_load_ttf_font("PermanentMarker.ttf", 63, 0);
-	helpFont = al_load_ttf_font("IndieFlower.ttf", 30, 0);
-	homeFont = al_load_ttf_font("forte.ttf", 50, 0);
 
+	//---------loading fonts
+	font = al_load_ttf_font("fonts/pirulen rg.ttf", 22, 0);
+	font2 = al_load_ttf_font("fonts/impact.ttf", 35, 0);
+	menuFont = al_load_ttf_font("fonts/PermanentMarker.ttf", 63, 0);
+	helpFont = al_load_ttf_font("fonts/IndieFlower.ttf", 30, 0);
+	homeFont = al_load_ttf_font("fonts/forte.ttf", 50, 0);
+	//end of loading fonts
+
+	//colors declarations
 	randColr[0] = al_map_rgb(244, 47, 200);
 	randColr[1] = al_map_rgb(212, 169, 51);
 	randColr[2] = al_map_rgb(58, 215, 46);
 	randColr[3] = al_map_rgb(255, 12, 12);
 	randColr[4] = al_map_rgb(42, 199, 250);
 	randColr[5] = al_map_rgb(56, 52, 241);
-	//background_color = al_map_rgb(88, 230, 182);
 	background_color = al_map_rgb(32, 32, 30);
+	//end of colors declarations
 
+	//---------loading bitmaps
+	bitmap = al_load_bitmap("bitmaps/elmCell.png");
+	hexagonal = al_load_bitmap("bitmaps/Hexagonal.png");
+	animCell = al_load_bitmap("bitmaps/anim.png");
+	test = al_load_bitmap("bitmaps/opacity.png");
+
+	gameOver = al_load_bitmap("bitmaps/gameOver.png");
+	backGround = al_load_bitmap("bitmaps/backGround.png");
+	menuBitmap = al_load_bitmap("bitmaps/menu.png");
+
+	elmBitmap[0] = al_load_bitmap("bitmaps/elmCell.png");
+	elmBitmap[1] = al_load_bitmap("bitmaps/2C01.png");
+	elmBitmap[2] = al_load_bitmap("bitmaps/2C02.png");
+	elmBitmap[3] = al_load_bitmap("bitmaps/2C03.png");
+	elmBitmap[4] = al_load_bitmap("bitmaps/3C01.png");
+	elmBitmap[5] = al_load_bitmap("bitmaps/3C02.png");
+	elmBitmap[6] = al_load_bitmap("bitmaps/3C03.png");
+	elmBitmap[7] = al_load_bitmap("bitmaps/3C04.png");
+	elmBitmap[8] = al_load_bitmap("bitmaps/3C05.png");
+
+	helpBitmap[0] = al_load_bitmap("bitmaps/help1.png");
+	helpBitmap[1] = al_load_bitmap("bitmaps/help2.png");
+	helpBitmap[2] = al_load_bitmap("bitmaps/help3.png");
+	helpBitmap[3] = al_load_bitmap("bitmaps/help4.png");
 	
-	bitmap = al_load_bitmap("elmCell.png");
-	hexagonal = al_load_bitmap("Hexagonal.png");
-	//hexagonal = al_load_bitmap("original.gif");
+	homeOptions[0] = al_load_bitmap("bitmaps/homeHeader.png");
+	homeOptions[1] = al_load_bitmap("bitmaps/clickStart.png");
+	homeOptions[2] = al_load_bitmap("bitmaps/selectLevel.png");
+	homeOptions[3] = al_load_bitmap("bitmaps/quit.png");
 
-	startClick = al_load_bitmap("clickStart.png");
-	//gameOver = al_load_bitmap("gameOver.png");
-	gameOver = al_load_bitmap("gameOver2.png");
-	tempBitmap = al_load_bitmap("backGround.png");
-	menuBitmap = al_load_bitmap("menu.png");
-
-	elmBitmap[0] = al_load_bitmap("elmCell.png");
-
-	elmBitmap[1] = al_load_bitmap("2C01.png");
-	elmBitmap[2] = al_load_bitmap("2C02.png");
-	elmBitmap[3] = al_load_bitmap("2C03.png");
-
-	elmBitmap[4] = al_load_bitmap("3C01.png");
-	elmBitmap[5] = al_load_bitmap("3C02.png");
-	elmBitmap[6] = al_load_bitmap("3C03.png");
-	elmBitmap[7] = al_load_bitmap("3C04.png");
-	elmBitmap[8] = al_load_bitmap("3C05.png");
-
-	helpBitmap[0] = al_load_bitmap("help1.png");
-	helpBitmap[1] = al_load_bitmap("help2.png");
-	helpBitmap[2] = al_load_bitmap("help3.png");
-	helpBitmap[3] = al_load_bitmap("help4.png");
-	
-	homeOptions[0] = al_load_bitmap("homeHeader.png");
-	homeOptions[1] = al_load_bitmap("clickStart.png");
-	homeOptions[2] = al_load_bitmap("selectLevel.png");
-	homeOptions[3] = al_load_bitmap("quit.png");
-
-	icon[0] = al_load_bitmap("pause.png");
-	icon[1] = al_load_bitmap("back.png");
-	icon[2] = al_load_bitmap("next.png");
-	icon[3] = al_load_bitmap("back2.png");
-	icon[4] = al_load_bitmap("hexagonIcon.png");
-	icon[5] = al_load_bitmap("soundOn.png");
-	icon[6] = al_load_bitmap("soundOff.png");
-	icon[7] = al_load_bitmap("trashGroup.png");
-	icon[8] = al_load_bitmap("star.png");
+	icon[0] = al_load_bitmap("bitmaps/pause.png");
+	icon[1] = al_load_bitmap("bitmaps/back.png");
+	icon[2] = al_load_bitmap("bitmaps/next.png");
+	icon[3] = al_load_bitmap("bitmaps/back2.png");
+	icon[4] = al_load_bitmap("bitmaps/hexagonIcon.png");
+	icon[5] = al_load_bitmap("bitmaps/soundOn.png");
+	icon[6] = al_load_bitmap("bitmaps/soundOff.png");
+	icon[7] = al_load_bitmap("bitmaps/trashGroup.png");
+	icon[8] = al_load_bitmap("bitmaps/star.png");
 	
 	soundIcon = al_clone_bitmap(icon[5]);
-	animCell = al_load_bitmap("testForAnim.png");
+	//end of loading bitmaps
 
-	bgSound = al_load_sample("sound.wav");
-	clickSound = al_load_sample("click.wav");
-	winSound = al_load_sample("laser.wav");
-	endSound = al_load_sample("end.wav");
-	animSound = al_load_sample("test1.wav");
-	levelUp = al_load_sample("level_up.wav");
-	
+	//---------loading sampales
+	bgSound = al_load_sample("sounds/sound.wav");
+	clickSound = al_load_sample("sounds/click.wav");
+	winSound = al_load_sample("sounds/laser.wav");
+	endSound = al_load_sample("sounds/end.wav");
+	animSound = al_load_sample("sounds/test1.wav");
+	levelUp = al_load_sample("sounds/level_up.wav");
+	//end of loading sampales
 	al_reserve_samples(5);
 
 	al_set_display_icon(display, icon[4]);
@@ -303,7 +282,6 @@ void init() {
 	al_register_event_source(queue, al_get_mouse_event_source());
 
 	done = false;
-	game_started = false;
 
 	move[0].state = false;
 	move[1].state = false;
@@ -313,61 +291,36 @@ void init() {
 	elem[1].exist = true;
 	elem[2].exist = true;
 
+	cols_init();
+	diag_init();
+	inv_diag_init();
+	cell_update();
 }
 
 void cols_init() {
 
-	//init for many 1D pointers 
-
-	/*for (i = 0, j = 0; i < 4, j < 4; i++, j++) {
-
-	col17[i] = &cell[j];
-	col17[i + 4] = &cell[j + 33];
-
-	//	col[0][i]->id = j;
-	//	col[6][i]->id = j + 33;
-
-	//	printf("col[0][%d] = %d -- col[6][%d] = %d\n", i, col[0][i]->id, i, col[6][i]->id);
-	//	printf("cell[%d] = %d -- cell[%d] = %d\n", j, cell[j].id, j, cell[j + 33].id);
-	}
-
-	for (i = 0, j = 4; i < 5, j < 9; i++, j++) {
-
-	col26[i] = &cell[j];
-	col26[i + 5] = &cell[j + 24];
-	}
-
-	for (i = 0, j = 9; i < 6, j < 15; i++, j++) {
-
-	col35[i] = &cell[j];
-	col35[i + 6] = &cell[j + 13];
-	}
-
-	for (i = 0, j = 15; i < 7, j < 22; i++, j++) {
-
-	col40[i] = &cell[j];
-	}
-	*/
-
-	//init for one 2D pointer 
-
+	//initialize the 1st and 7th columns 
 	for (i = 0, j = 0; i < 4, j < 4; i++, j++) {
 
 		col[0][i] = &cell[j];
 		col[6][i] = &cell[j + 33];
 	}
+
+	//initialize the 2nd and 6th columns 
 	for (i = 0, j = 4; i < 5, j < 9; i++, j++) {
 
 		col[1][i] = &cell[j];
 		col[5][i] = &cell[j + 24];
 	}
 
+	//initialize the 3rd and 5th columns 
 	for (i = 0, j = 9; i < 6, j < 15; i++, j++) {
 
 		col[2][i] = &cell[j];
 		col[4][i] = &cell[j + 13];
 	}
 
+	//initialize the 6th columns
 	for (i = 0, j = 15; i < 7, j < 22; i++, j++) {
 
 		col[3][i] = &cell[j];
@@ -451,16 +404,16 @@ void inv_diag_init() {
 
 void cell_update() {
 
+	static bool game_started = false;
 
 	for (i = 0; i < 37; i++) {
 
 		if (!game_started) {
 
-			//cell[i].filled = false;
+			cell[i].filled = false;
 			cell[i].id = i;
-			//cell[i].cellClr = al_map_rgb(214, 208, 208);
 			cell[i].cellClr = al_map_rgb(100, 50, 50);
-			cell[i].bitmap = al_clone_bitmap(bitmap); //i made the clone be done once when the game started 
+			cell[i].bitmap = al_clone_bitmap(bitmap); //i moved the clone to this section to be done once when the game started to avoid overload memory
 		}
 		
 		if (cell[i].filled == false) {
@@ -469,19 +422,11 @@ void cell_update() {
 
 				cell[i].bitmap = al_clone_bitmap(bitmap);
 			}
-			//cell[i].bitmap = al_load_bitmap("emptyCell.png");
 			cell[i].cellClr = al_map_rgb(255, 255, 255);
-			//cell[i].bitmap = al_clone_bitmap(bitmap); //the clone here was making overload in memory
 			al_draw_tinted_bitmap(cell[i].bitmap, cell[i].cellClr, cell[i].x, cell[i].y, NULL);
-			//al_draw_bitmap(cell[i].bitmap, cell[i].x, cell[i].y, NULL);
 		}
 		if (cell[i].filled == true) {
-			//cell[i].bitmap = al_load_bitmap("redCell.png");
-			//cell[i].bitmap = al_clone_bitmap(tempBitmap); //I canceled it in order to test new feature
-			//cell[i].bitmap = al_clone_bitmap(bitmap2); //Orginal One
-			//cell[i].cellClr = elem[activeElm].elmClr;
-			//al_draw_bitmap(cell[i].bitmap, cell[i].x, cell[i].y, NULL);
-			//cell[i].bitmap = elmBitmap[activeElm];
+
 			al_draw_tinted_bitmap(cell[i].bitmap, cell[i].cellClr, cell[i].x, cell[i].y, NULL);
 			
 		}
@@ -489,7 +434,7 @@ void cell_update() {
 	
 	game_started = true;
 
-} //no need to be called alone, check function calls it usually
+} //no need to be called alone, check function calls it always
 
 void draw() {
 
@@ -503,8 +448,8 @@ void draw() {
 	al_draw_bitmap(soundIcon, 440, 165, NULL);
 	al_draw_bitmap(icon[7], 440, 240, NULL);
 	al_draw_bitmap(icon[8], 440, 10, NULL);
-	al_draw_textf(helpFont, al_map_rgb(255, 255, 255), 10, 5, NULL, "SCORE: %d", score);
-	al_draw_textf(helpFont, al_map_rgb(255, 255, 255), 10, 45, NULL, "BEST: %d", highScore);
+	al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 5, NULL, "SCORE: %d", score);
+	al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 45, NULL, "BEST: %d", highScore);
 
 	if(stars <= 9)
 		al_draw_textf(font, al_map_rgb(255, 255, 255), 410, 20, NULL, "%d", stars);
@@ -513,8 +458,6 @@ void draw() {
 	else if(stars >= 100)
 		al_draw_textf(font, al_map_rgb(255, 255, 255), 380, 20, NULL, "%d", stars);
 
-	//al_draw_bitmap(bitmap3, originX, originY - 55, NULL);
-
 
 	// ======================  >>>>> Drawing the hexagonal <<<<< =========================
 
@@ -522,11 +465,7 @@ void draw() {
 
 		al_draw_tinted_bitmap(cell[j].bitmap, cell[j].cellClr, cellX, cellY + 1, NULL);
 		al_draw_tinted_bitmap(cell[j + 33].bitmap, cell[j + 33].cellClr, cellX + 198, cellY + 1, NULL);
-		//al_draw_bitmap(cell[j].bitmap, cellX, cellY + 1, NULL); //drawing the 1st column
-		//al_draw_bitmap(cell[j + 33].bitmap, cellX + 198, cellY + 1, NULL); //drawing the 7th column
 
-
-		//printf("cell[%d] = X - %d Y - %d\n", j, cell[j].x, cell[j].y);
 		
 		//Set the coordinates for each cell in the 1st and 7th column
 		cell[j].x = cellX;
@@ -545,8 +484,6 @@ void draw() {
 
 		al_draw_tinted_bitmap(cell[j].bitmap, cell[j].cellClr, cellX, cellY, NULL);
 		al_draw_tinted_bitmap(cell[j + 24].bitmap, cell[j + 24].cellClr, cellX + 132, cellY, NULL);
-		//al_draw_bitmap(cell[j].bitmap, cellX, cellY, NULL);
-		//al_draw_bitmap(cell[j + 24].bitmap, cellX + 132, cellY, NULL);
 
 		//Set the coordinates for each cell in the 2nd and 6th column
 		cell[j].x = cellX;
@@ -565,8 +502,6 @@ void draw() {
 
 		al_draw_tinted_bitmap(cell[j].bitmap, cell[j].cellClr, cellX, cellY, NULL);
 		al_draw_tinted_bitmap(cell[j + 13].bitmap, cell[j + 13].cellClr, cellX + 66, cellY, NULL);
-		//al_draw_bitmap(cell[j].bitmap, cellX, cellY, NULL);
-		//al_draw_bitmap(cell[j + 13].bitmap, cellX + 66, cellY, NULL);
 
 		//Set the coordinates for each cell in the 3rd and 5th column
 		cell[j].x = cellX;
@@ -584,7 +519,6 @@ void draw() {
 	for (j = 15; j < 22; j++) {
 
 		al_draw_tinted_bitmap(cell[j].bitmap, cell[j].cellClr, cellX, cellY, NULL);
-		//al_draw_bitmap(cell[j].bitmap, cellX, cellY, NULL);
 
 		//Setting the coordinates for each cell in the 4th column
 		cell[j].x = cellX;
@@ -610,13 +544,7 @@ void draw() {
 
 		for (i = 0; i < 3; i++) {
 
-
-			//elem[i].bitmap = al_clone_bitmap(bitmap2);
-			//elem[i] = rndElem[2];
-			//al_draw_bitmap(elem[i].bitmap, elX, elY, NULL);
 			al_draw_tinted_bitmap(elem[i].bitmap, elem[i].elmClr, elX, elY, NULL);
-			//al_draw_tinted_bitmap(elem[i].bitmap, randColr[0], elX, elY, NULL);
-			printf("rndClr\n");
 			elem[i].exist = true;
 
 			//Setting the coordinates for each element 
@@ -642,26 +570,78 @@ void draw() {
 		}
 		al_draw_tinted_bitmap(elem[i].bitmap, elem[i].elmClr, elem[i].x, elem[i].y, NULL);
 
-		//colr_generator();
-		//elem[i].exist = true;
-		//elem[i] = testEl[n[i]];
-		//elem[i].bitmap = al_clone_bitmap(testEl[s[i]].bitmap);
-		//elem[i].bitmap = al_clone_bitmap(bitmap3);
+	}
+	al_flip_display();
+}
+
+void rand_elem() {
 
 
-		//al_draw_tinted_bitmap(elmBitmap[1], elem[i].elmClr, elem[i].x, elem[i].y, NULL);
-		//al_draw_bitmap(elem[i].bitmap, elem[i].x, elem[i].y, NULL);
-		//al_draw_tinted_bitmap(elem[i].bitmap, randColr[0], elem[i].x, elem[i].y, NULL);
+	srand(time(NULL));
+
+	int e1, e2, e3;
+	int c1, c2, c3;
+
+	if (gameLevel == 1) {
+
+		e1 = rand() % 9;
+		e2 = rand() % 9;
+		e3 = rand() % 9;
+	}
+	else if (gameLevel == 2) {
+
+		do
+		{
+			e1 = rand() % 9;
+			e2 = rand() % 9;
+			e3 = rand() % 9;
+
+		} while (e1 < 2 || e2 < 2 || e3 < 2);
+	}
+	else if (gameLevel >= 3) {
+
+		do
+		{
+			e1 = rand() % 9;
+			e2 = rand() % 9;
+			e3 = rand() % 9;
+
+		} while (e1 < 4 || e2 < 4 || e3 < 4);
 	}
 
-	
 
-	//rand_elem();
-	//redraw_elements();
-	//check_move();
-	//al_draw_bitmap(gameOver, 0, 0, NULL);
-	hover(event);
-	al_flip_display();
+	c1 = rand() % 6;
+	c2 = rand() % 6;
+	c3 = rand() % 6;
+
+	//init how many cell for each element
+	for (i = 0; i < 9; i++) {
+
+		if (i == 0) {
+			rndElem[i].type = 1;
+			rndElem[i].bitmap = elmBitmap[i];
+		}
+		if (i > 0 && i < 4) {
+			rndElem[i].type = 2;
+			rndElem[i].bitmap = elmBitmap[i];
+		}
+		if (i >= 4 && i < 9) {
+			rndElem[i].type = 3;
+			rndElem[i].bitmap = elmBitmap[i];
+		}
+		rndElem[i].id = i;
+	}
+
+	//printf("%d - %d - %d - %d", choice, e1, e2, e3);
+
+	elem[0] = rndElem[e1];
+	elem[1] = rndElem[e2];
+	elem[2] = rndElem[e3];
+
+	elem[0].elmClr = randColr[c1];
+	elem[1].elmClr = randColr[c2];
+	elem[2].elmClr = randColr[c3];
+
 }
 
 void check(ALLEGRO_EVENT event) {
@@ -1373,7 +1353,7 @@ void check(ALLEGRO_EVENT event) {
 			is_good_diag();
 			is_good_inv_diag();
 			cell_update();
-			//check_end2();
+			//check_end();
 			//check_end();
 		}//
 	}
@@ -1442,6 +1422,218 @@ void check_move() {
 			elem[2].y = elem[3].y - 15;
 		}
 	}
+}
+
+void check_end() {
+
+
+	for (i = 0; i < 9; i++) {
+		counter[i] = 0;
+	}
+
+	//1C01 & 2C01 & 3C01 cases
+	for (i = 0; i < 37; i++) {
+		////----------1C01 case
+		if (!cell[i].filled) {
+			counter[0]++;
+		}
+		////----------2C01 case
+		if (!cell[i].filled && !cell[i + 1].filled) {
+			if (cell[i].id == 3 || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21 || cell[i].id == 27 || cell[i].id == 32 || cell[i].id == 36)
+				continue;
+
+			counter[1]++;
+		}
+		////----------3C01 case
+		if (!cell[i].filled && !cell[i + 1].filled && !cell[i + 2].filled) {
+			if (cell[i].id == 2 || cell[i].id == 3 || cell[i].id == 7 || cell[i].id == 8 || cell[i].id == 13 || cell[i].id == 14 || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 26 || cell[i].id == 27 || cell[i].id == 31 || cell[i].id == 32 || cell[i].id == 35 || cell[i].id == 36)
+				continue;
+
+			counter[4]++;
+		}
+	}
+
+	//----------2C02 case
+	for (i = 0; i < 6; i++) {
+
+		if ((i < 3) && ((!inv_diag[0][i]->filled && !inv_diag[0][i + 1]->filled) || (!inv_diag[6][i]->filled && !inv_diag[6][i + 1]->filled))) {
+
+			counter[2]++;
+		}//end of 1st and 7th inv_diagonals
+
+		if ((i < 4) && ((!inv_diag[1][i]->filled && !inv_diag[1][i + 1]->filled) || (!inv_diag[5][i]->filled && !inv_diag[5][i + 1]->filled))) {
+
+			counter[2]++;
+		}//end of 2st and 6th inv_diagonals
+
+		if ((i < 5) && ((!inv_diag[2][i]->filled && !inv_diag[2][i + 1]->filled) || (!inv_diag[4][i]->filled && !inv_diag[4][i + 1]->filled))) {
+
+			counter[2]++;
+		}//end of 3st and 5th inv_diagonals
+		if (!inv_diag[3][i]->filled && !inv_diag[3][i + 1]->filled) {
+
+			counter[2]++;
+		}//end of 4th inv_diagonals
+	}
+
+
+	//----------2C03 case
+	for (i = 0; i < 6; i++) {
+
+		if ((i < 3) && ((!diag[0][i]->filled && !diag[0][i + 1]->filled) || (!diag[6][i]->filled && !diag[6][i + 1]->filled))) {
+
+			counter[3]++;
+		}//end of 1st and 7th diagonals
+
+		if ((i < 4) && ((!diag[1][i]->filled && !diag[1][i + 1]->filled) || (!diag[5][i]->filled && !diag[5][i + 1]->filled))) {
+
+			counter[3]++;
+		}//end of 2st and 6th diagonals
+
+		if ((i < 5) && ((!diag[2][i]->filled && !diag[2][i + 1]->filled) || (!diag[4][i]->filled && !diag[4][i + 1]->filled))) {
+
+			counter[3]++;
+		}//end of 3st and 5th diagonals
+		if (!diag[3][i]->filled && !diag[3][i + 1]->filled) {
+
+			counter[3]++;
+		}//end of 4th diagonals
+	}
+
+	//----------3C02 case
+	for (i = 0; i < 5; i++) {
+
+		if ((i < 2) && ((!inv_diag[0][i]->filled && !inv_diag[0][i + 1]->filled && !inv_diag[0][i + 2]->filled) || (!inv_diag[6][i]->filled && !inv_diag[6][i + 1]->filled && !inv_diag[6][i + 2]->filled))) {
+
+			counter[5]++;
+		}//end of 1st and 7th inv_diagonals
+
+		if ((i < 3) && ((!inv_diag[1][i]->filled && !inv_diag[1][i + 1]->filled && !inv_diag[1][i + 2]->filled) || (!inv_diag[5][i]->filled && !inv_diag[5][i + 1]->filled && !inv_diag[5][i + 2]->filled))) {
+
+			counter[5]++;
+		}//end of 2st and 6th inv_diagonals
+
+		if ((i < 4) && ((!inv_diag[2][i]->filled && !inv_diag[2][i + 1]->filled && !inv_diag[2][i + 2]->filled) || (!inv_diag[4][i]->filled && !inv_diag[4][i + 1]->filled && !inv_diag[4][i + 2]->filled))) {
+
+			counter[5]++;
+		}//end of 3st and 5th inv_diagonals
+
+		if (!inv_diag[3][i]->filled && !inv_diag[3][i + 1]->filled && !inv_diag[3][i + 2]->filled) {
+
+			counter[5]++;
+		}//end of 4th inv_diagonals
+	}
+
+	//----------3C03 case
+	for (i = 0; i < 5; i++) {
+
+		if ((i < 2) && ((!diag[0][i]->filled && !diag[0][i + 1]->filled && !diag[0][i + 2]->filled) || (!diag[6][i]->filled && !diag[6][i + 1]->filled && !diag[6][i + 2]->filled))) {
+
+			counter[6]++;
+		}//end of 1st and 7th diagonals
+
+		if ((i < 3) && ((!diag[1][i]->filled && !diag[1][i + 1]->filled && !diag[1][i + 2]->filled) || (!diag[5][i]->filled && !diag[5][i + 1]->filled && !diag[5][i + 2]->filled))) {
+
+			counter[6]++;
+		}//end of 2st and 6th diagonals
+
+		if ((i < 4) && ((!diag[2][i]->filled && !diag[2][i + 1]->filled && !diag[2][i + 2]->filled) || (!diag[4][i]->filled && !diag[4][i + 1]->filled && !diag[4][i + 2]->filled))) {
+
+			counter[6]++;
+		}//end of 3st and 5th diagonals
+
+		if (!diag[3][i]->filled && !diag[3][i + 1]->filled && !diag[3][i + 2]->filled) {
+
+			counter[6]++;
+		}//end of 4th diagonals
+	}
+
+	//----------3C04 & 3C05 cases
+	for (i = 0; i < 6; i++) {
+
+		//---3C04
+		if ((i < 4) && ((!col[0][i]->filled && !col[1][i + 1]->filled && !col[2][i + 1]->filled) || (!col[4][i + 1]->filled && !col[5][i + 1]->filled && !col[6][i]->filled))) {
+			counter[7]++;
+		}
+		if ((i < 5) && ((!col[1][i]->filled && !col[2][i + 1]->filled && !col[3][i + 1]->filled) || (!col[3][i + 1]->filled && !col[4][i + 1]->filled && !col[5][i]->filled))) {
+			counter[7]++;
+		}
+		if (!col[2][i]->filled && !col[3][i + 1]->filled && !col[4][i]->filled) {
+			counter[7]++;
+		}
+
+		//---3C05
+		if ((i < 4) && ((!col[0][i]->filled && !col[1][i]->filled && !col[2][i + 1]->filled) || (!col[4][i + 1]->filled && !col[5][i]->filled && !col[6][i]->filled))) {
+			counter[8]++;
+		}
+		if ((i < 5) && ((!col[1][i]->filled && !col[2][i]->filled && !col[3][i + 1]->filled) || (!col[3][i + 1]->filled && !col[4][i]->filled && !col[5][i]->filled))) {
+			counter[8]++;
+		}
+		if (!col[2][i]->filled && !col[3][i]->filled && !col[4][i]->filled) {
+			counter[8]++;
+		}
+	}
+
+	//rating the elements whether bad or not
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 9; j++) {
+
+			if (elem[i].id == j && counter[j] == 0) {
+				elem[i].badElem = true;
+			}
+		}
+	}
+
+	//for check only
+	for (i = 0; i < 9; i++) {
+		printf("counter[%d] = %d\n", i, counter[i]);
+	}
+	for (i = 0; i < 3; i++) {
+		printf("elem[%d].badElem = %d\n", i, elem[i].badElem);
+	}
+	//
+
+	cell_update();
+
+	j = 0;
+	if ((elem[j].badElem && elem[++j].badElem && elem[++j].badElem) || (elem[0].badElem && !elem[1].exist && !elem[2].exist) || (elem[1].badElem && !elem[0].exist && !elem[2].exist) || (elem[2].badElem && !elem[0].exist && !elem[1].exist) || (elem[0].badElem && elem[1].badElem && !elem[2].exist) || (elem[0].badElem && elem[2].badElem && !elem[1].exist) || (elem[1].badElem && elem[2].badElem && !elem[0].exist)) {
+		printf("not true\n");
+		game_over(event);
+	}
+	else {
+		for (j = 0; j < 3; j++) {
+
+			elem[j].badElem == false;
+		}
+		printf("all false\n");
+	}
+}
+
+void check_level() {
+
+	static int countr = 0;
+
+	if (score >= gameLevel * 100 && gameLevel < 4) {
+
+		gameLevel++;
+
+
+		for (i = 0; i < 2; i++) {
+
+			al_play_sample(levelUp, 1.0, 0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+
+			al_draw_textf(homeFont, al_map_rgb(255, 0, 0), 125, 150, 0, "LEVEL UP !");
+			al_flip_display();
+			al_rest(0.5);
+
+			al_draw_textf(homeFont, al_map_rgb(255, 240, 0), 125, 150, 0, "LEVEL UP !");
+			al_flip_display();
+			al_rest(0.5);
+		}
+
+		printf("game level is %d\n\n", gameLevel);
+	}
+
 }
 
 void is_good_col() {
@@ -2559,6 +2751,7 @@ void is_good_col() {
 		}
 	}//end of 7th column
 	cell_update();
+	check_end();
 
 }
 
@@ -3078,6 +3271,8 @@ void is_good_diag() {
 			}
 		}
 	}//end of 7th diagonal
+	check_end();
+
 }
 
 void is_good_inv_diag() {
@@ -3174,36 +3369,8 @@ void is_good_inv_diag() {
 		}
 		al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 	}
-}
+	check_end();
 
-void user_input(ALLEGRO_EVENT event) {
-
-	//al_get_mouse_state(&mState);
-	al_wait_for_event(queue, &event);
-
-	for (i = 0; i < 3; i++) {
-
-	if (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
-		elem[3].x = event.mouse.x;
-		elem[3].y = event.mouse.y;
-
-	}
-	else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-
-		if ((event.mouse.button & 1) && (event.mouse.x >= elem[i].x) && (event.mouse.x <= elem[i].x + cellWidth) && (event.mouse.y >= elem[i].y) && (event.mouse.y <= elem[i].y + cellHeight)) {
-			move[i].state = true;
-			printf("klkl %d\n", i);
-		}
-		else if (event.mouse.button & 2)
-		{
-			move[0].state = false;
-			move[1].state = false;
-			move[2].state = false;
-		}
-	}
-		//cell_update();
-	}
-	draw();
 }
 
 void game_loop(ALLEGRO_EVENT event) {
@@ -3213,13 +3380,11 @@ void game_loop(ALLEGRO_EVENT event) {
 	al_start_timer(timer);
 
 	if (soundOn)
-		//al_play_sample(bgSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, bgSnd);
+		//al_play_sample(bgSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, bgSnd);
 
 	while (!done) {
 
 		al_wait_for_event(queue, &event);
-
-		
 
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
 			//done = true;
@@ -3244,27 +3409,30 @@ void game_loop(ALLEGRO_EVENT event) {
 
 			 if ((event.mouse.button & 1) && (event.mouse.x >= 440) && (event.mouse.x <= 490) && (event.mouse.y >= 80) && (event.mouse.y <= 120)) {
 			
+				 al_play_sample(clickSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 				 printf("pause!\n");
-				 pause = true;
 				 menu(event);
 			}
 			else if ((event.mouse.button & 1) && (event.mouse.x >= 440) && (event.mouse.x <= 490) && (event.mouse.y >= 165) && (event.mouse.y <= 215)) {
 
+				al_play_sample(clickSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 				if (!soundOn) {
 
 					soundOn = true;
 					soundIcon = al_clone_bitmap(icon[5]);
-					//al_play_sample(bgSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, bgSnd);
+					//al_play_sample(bgSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, bgSnd);
 				}
 				else if (soundOn){
 					
 					soundOn = false;
 					soundIcon = al_clone_bitmap(icon[6]);
+					al_play_sample(bgSound, 0, 0.0, 0, ALLEGRO_PLAYMODE_ONCE, bgSnd);
 					//al_stop_sample(bgSnd);
 				}
 			}
 			else if ((event.mouse.button & 1) && (stars >= 20) && (event.mouse.x >= 440) && (event.mouse.x <= 490) && (event.mouse.y >= 240) && (event.mouse.y <= 290)) {
 
+				al_play_sample(clickSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 				rand_elem();
 				stars -= 20;
 			}
@@ -3315,9 +3483,9 @@ void game_loop(ALLEGRO_EVENT event) {
 					elem[i].y = elem[i].orgY;
 				}
 			}
-			check_end2();
+			check_end();
 			check(event); //the order is very important here check function must be before the check_end function definetly
-			check_end2();
+			check_end();
 			//check(event); 
 			
 
@@ -3327,68 +3495,6 @@ void game_loop(ALLEGRO_EVENT event) {
 		check_level();
 	}
 	printf("done!");
-}
-
-void shutdown(void) {
-
-	if (done) {
-
-		if (queue)
-			al_destroy_event_queue(queue);
-
-		if (timer) 
-			al_destroy_timer(timer);
-		
-		if (display)
-			al_destroy_display(display);
-
-		//destroy all bitmaps
-		if (bitmap)
-			al_destroy_bitmap(bitmap);
-
-		if (hexagonal)
-			al_destroy_bitmap(hexagonal);
-
-		if (startClick)
-			al_destroy_bitmap(startClick);
-
-		if (gameOver)
-			al_destroy_bitmap(gameOver);
-
-		if (menuBitmap)
-			al_destroy_bitmap(menuBitmap);
-
-		//destroy all samples
-		if (animCell)
-			al_destroy_bitmap(animCell);
-
-		if (bgSound)
-			al_destroy_sample(bgSound);
-
-		if (endSound)
-			al_destroy_sample(endSound);
-
-		if (winSound)
-			al_destroy_sample(winSound);
-
-		if (endSound)
-			al_destroy_sample(endSound);
-
-		//destroy all fonts
-		//if (font)
-		//	al_destroy_font(font);
-
-		//if (font2)
-		//	al_destroy_font(font2);
-
-		//if (menuFont)
-			//al_destroy_font(menuFont);
-
-		//al_uninstall_mouse();
-		//al_uninstall_keyboard();
-		//al_uninstall_audio();
-	}
-	
 }
 
 void Home(ALLEGRO_EVENT event) {
@@ -3402,7 +3508,7 @@ void Home(ALLEGRO_EVENT event) {
 		//al_clear_to_color(al_map_rgb(175, 219, 238));
 		//al_draw_bitmap(hexagonal, originX, originY - 50, NULL);
 
-		al_draw_bitmap(tempBitmap, 0, 0, 0);
+		al_draw_bitmap(backGround, 0, 0, 0);
 		al_draw_tinted_bitmap(homeOptions[0], al_map_rgb(255, 255, 255), 5, 75, NULL);
 		al_draw_tinted_bitmap(homeOptions[1], al_map_rgb(169, 169, 169), 120, 250, NULL);
 		al_draw_tinted_bitmap(homeOptions[2], al_map_rgb(169, 169, 169), 120, 350, NULL);
@@ -3455,7 +3561,7 @@ void select_level(ALLEGRO_EVENT event) {
 	{
 		al_wait_for_event(queue, &event);
 
-		al_draw_bitmap(tempBitmap, 0, 0, 0);
+		al_draw_bitmap(backGround, 0, 0, 0);
 		al_draw_textf(homeFont, al_map_rgb(169, 169, 169), 200, 190, 0, "Easy");
 		al_draw_textf(homeFont, al_map_rgb(169, 169, 169), 180, 290, 0, "Normal");
 		al_draw_textf(homeFont, al_map_rgb(169, 169, 169), 200, 390, 0, "Hard");
@@ -3501,100 +3607,15 @@ void select_level(ALLEGRO_EVENT event) {
 	printf("level = %d", gameLevel);
 }
 
-void rand_elem() {
-
-
-	srand(time(NULL));
-
-	int e1, e2, e3;
-	int c1, c2, c3;
-
-	if (gameLevel == 1) {
-
-		e1 = rand() % 9;
-		e2 = rand() % 9;
-		e3 = rand() % 9;
-	}
-	else if (gameLevel == 2) {
-
-		do
-		{
-			e1 = rand() % 9;
-			e2 = rand() % 9;
-			e3 = rand() % 9;
-
-		} while (e1 < 2 || e2 < 2 || e3 < 2);
-	}
-	else if (gameLevel >= 3) {
-
-		do
-		{
-			e1 = rand() % 9;
-			e2 = rand() % 9;
-			e3 = rand() % 9;
-
-		} while (e1 < 4 || e2 < 4 || e3 < 4);
-	}
-
-	
-	c1 = rand() % 6;
-	c2 = rand() % 6;
-	c3 = rand() % 6;
-
-	//init how many cell for each element
-	for (i = 0; i < 9; i++) {
-
-		if (i == 0) {
-			rndElem[i].type = 1;
-			rndElem[i].bitmap = elmBitmap[i];
-		}
-		if (i > 0 && i < 4) {
-			rndElem[i].type = 2;
-			rndElem[i].bitmap = elmBitmap[i];
-		}
-		if (i >= 4 && i < 9) {
-			rndElem[i].type = 3;
-			rndElem[i].bitmap = elmBitmap[i];
-		}
-		rndElem[i].id = i;
-	}
-
-	//printf("%d - %d - %d - %d", choice, e1, e2, e3);
-
-	elem[0] = rndElem[e1];
-	elem[1] = rndElem[e2];
-	elem[2] = rndElem[e3];
-
-	elem[0].elmClr = randColr[c1];
-	elem[1].elmClr = randColr[c2];
-	elem[2].elmClr = randColr[c3];
-	
-}
-
 void game_over(ALLEGRO_EVENT event) {
+
+	static bool lost = false;
 
 	al_rest(1.0);
 	al_play_sample(endSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+	al_draw_bitmap(gameOver, 0, 0, NULL);
+	al_draw_textf(font2, al_map_rgb(106, 222, 103), 335, 278, NULL, "%d", score);
 	
-	for (j = 0; j <= score; j++) { //adding effect to the score
-
-		al_draw_bitmap(gameOver, 0, 0, NULL);
-		al_draw_textf(font2, al_map_rgb(106, 222, 103), 335, 278, NULL, "%d", j);
-		al_flip_display();
-
-		if (score <= 100)
-			al_rest(0.009);
-		else if (score > 100 && score < 200)
-			al_rest(0.005);
-		else if (score > 200 && score < 300)
-			al_rest(0.003);
-		else if (score > 300 && score < 400)
-			al_rest(0.00001);
-		else
-			continue;
-			
-	}
-
 	lost = true;
 
 	while (lost)
@@ -3647,6 +3668,8 @@ void game_over(ALLEGRO_EVENT event) {
 }
 
 void menu(ALLEGRO_EVENT event) {
+
+	bool pause = true;
 
 	al_draw_bitmap(menuBitmap, 0, 0, NULL);
 
@@ -3814,319 +3837,11 @@ void help(ALLEGRO_EVENT event) {
 
 
 }
-
-void check_end() {
-
-	for (i = 0; i < 9; i++) {
-		counter[i] = 0;
-	}
-
-	for (i = 0; i < 37; i++) {
-		//1C01 case
-		if (!cell[i].filled) {
-			counter[0]++;
-		}
-		//2C01 case
-		if (!cell[i].filled && !cell[i + 1].filled) {
-			if (cell[i].id == 3 || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21 || cell[i].id == 27 || cell[i].id == 32 || cell[i].id == 36)
-				continue;
-
-			counter[1]++;
-		}
-		//2C02 case
-		if ((!cell[i].filled && !cell[i + 5].filled) || (!cell[i].filled && !cell[i + 6].filled) || (!cell[i].filled && !cell[i + 7].filled)) {
-			if ((cell[i].id >= 32 && cell[i].id <= 36) || cell[i].id == 21 || cell[i].id == 27)
-				continue;
-
-			counter[2]++;
-		}
-		//2C03 case
-		if ((!cell[i].filled && !cell[i - 4].filled) || (!cell[i].filled && !cell[i - 5].filled) || (!cell[i].filled && !cell[i - 6].filled)) {
-			if ((cell[i].id >= 0 && cell[i].id <= 3) || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21)
-				continue;
-
-			counter[3]++;
-		}
-		//3C01 case
-		if (!cell[i].filled && !cell[i + 1].filled && !cell[i + 2].filled) {
-			if (cell[i].id == 2 || cell[i].id == 3 || cell[i].id == 7 || cell[i].id == 8 || cell[i].id == 13 || cell[i].id == 14 || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 26 || cell[i].id == 27 || cell[i].id == 31 || cell[i].id == 32 || cell[i].id == 35 || cell[i].id == 36)
-				continue;
-
-			counter[4]++;
-		}
-		//3C02 case
-		if ((!cell[i].filled && !cell[i + 5].filled && !cell[i + 11].filled) || (!cell[i].filled && !cell[i + 6].filled && !cell[i + 13].filled) || (!cell[i].filled && !cell[i + 7].filled && !cell[i + 14].filled) || (!cell[i].filled && !cell[i + 7].filled && !cell[i + 13].filled) || (!cell[i].filled && !cell[i + 6].filled && !cell[i + 11].filled)) {
-			if ((cell[i].id >= 26 && cell[i].id <= 36) || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 14)
-				continue;
-
-			counter[5]++;
-		}
-		//3C03 case
-		if ((!cell[i].filled && !cell[i - 5].filled && !cell[i - 9].filled) || (!cell[i].filled && !cell[i - 6].filled && !cell[i - 11].filled) || (!cell[i].filled && !cell[i - 6].filled && !cell[i - 12].filled) || (!cell[i].filled && !cell[i - 5].filled && !cell[i - 11].filled) || (!cell[i].filled && !cell[i - 4].filled && !cell[i - 9].filled)) {
-			if ((cell[i].id >= 0 && cell[i].id <= 8) || cell[i].id == 13 || cell[i].id == 14 || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 27)
-				continue;
-
-			counter[6]++;
-		}
-		//3C04 case
-		if ((!cell[i].filled && !cell[i + 5].filled && !cell[i + 10].filled) || (!cell[i].filled && !cell[i + 6].filled && !cell[i + 12].filled) || (!cell[i].filled && !cell[i + 7].filled && !cell[i + 13].filled) || (!cell[i].filled && !cell[i + 7].filled && !cell[i + 12].filled) || (!cell[i].filled && !cell[i + 6].filled && !cell[i + 10].filled)) {
-			if ((cell[i].id >= 27 && cell[i].id <= 36) || cell[i].id == 15 || cell[i].id == 21 || cell[i].id == 22)
-				continue;
-
-			counter[7]++;
-		}
-		//3C05 case
-		if ((!cell[i].filled && !cell[i - 4].filled && !cell[i + 6].filled) || (!cell[i].filled && !cell[i - 5].filled && !cell[i + 7].filled) || (!cell[i].filled && !cell[i - 6].filled && !cell[i + 7].filled) || (!cell[i].filled && !cell[i - 6].filled && !cell[i + 6].filled) || (!cell[i].filled && !cell[i - 5].filled && !cell[i + 5].filled)) {
-			if ((cell[i].id >= 0 && cell[i].id <= 3) || (cell[i].id >= 32 && cell[i].id <= 36) || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21 || cell[i].id == 27)
-				continue;
-
-			counter[8]++;
-		}
-	}
-
-	for (i = 0; i < 3; i++) {
-
-		for (j = 0; j < 9; j++) {
-
-			if (elem[i].id == j && counter[j] == 0) {
-				elem[i].badElem = true;
-			}
-		}
-	}
-
-	for (i = 0; i < 9; i++) {
-		printf("counter[%d] = %d\n", i, counter[i]);
-	}
-	for (i = 0; i < 3; i++) {
-		printf("elem[%d].badElem = %d\n", i, elem[i].badElem);
-	}
-
-	j = 0;
-	if ((elem[j].badElem && elem[++j].badElem && elem[++j].badElem) || (elem[0].badElem && !elem[1].exist && !elem[2].exist) || (elem[1].badElem && !elem[0].exist && !elem[2].exist) || (elem[2].badElem && !elem[0].exist && !elem[1].exist)) {
-		printf("not true\n");
-		game_over(event);
-	}
-	else {
-		for (j = 0; j < 3; j++) {
-
-			elem[j].badElem == false;
-			
-		}
-		printf("all false\n");
-	}
-
-}
-
-//////////////////////
-
-void check_end2() {
-
-
-	for (i = 0; i < 9; i++) {
-		counter[i] = 0;
-	}
-
-	//1C01 & 2C01 & 3C01 cases
-	for (i = 0; i < 37; i++) {
-		////----------1C01 case
-		if (!cell[i].filled) {
-			counter[0]++;
-		}
-		////----------2C01 case
-		if (!cell[i].filled && !cell[i + 1].filled) {
-			if (cell[i].id == 3 || cell[i].id == 8 || cell[i].id == 14 || cell[i].id == 21 || cell[i].id == 27 || cell[i].id == 32 || cell[i].id == 36)
-				continue;
-
-			counter[1]++;
-		}
-		////----------3C01 case
-		if (!cell[i].filled && !cell[i + 1].filled && !cell[i + 2].filled) {
-			if (cell[i].id == 2 || cell[i].id == 3 || cell[i].id == 7 || cell[i].id == 8 || cell[i].id == 13 || cell[i].id == 14 || cell[i].id == 20 || cell[i].id == 21 || cell[i].id == 26 || cell[i].id == 27 || cell[i].id == 31 || cell[i].id == 32 || cell[i].id == 35 || cell[i].id == 36)
-				continue;
-
-			counter[4]++;
-		}
-	}
-
-	//----------2C02 case
-	for (i = 0; i < 6; i++) {
-
-		if ((i < 3) && ((!inv_diag[0][i]->filled && !inv_diag[0][i + 1]->filled) || (!inv_diag[6][i]->filled && !inv_diag[6][i + 1]->filled))) {
-
-			counter[2]++;
-		}//end of 1st and 7th inv_diagonals
-
-		if ((i < 4) && ((!inv_diag[1][i]->filled && !inv_diag[1][i + 1]->filled) || (!inv_diag[5][i]->filled && !inv_diag[5][i + 1]->filled))) {
-
-			counter[2]++;
-		}//end of 2st and 6th inv_diagonals
-
-		if ((i < 5) && ((!inv_diag[2][i]->filled && !inv_diag[2][i + 1]->filled) || (!inv_diag[4][i]->filled && !inv_diag[4][i + 1]->filled))) {
-
-			counter[2]++;
-		}//end of 3st and 5th inv_diagonals
-		if (!inv_diag[3][i]->filled && !inv_diag[3][i + 1]->filled) {
-
-			counter[2]++;
-		}//end of 4th inv_diagonals
-	}
-
-
-	//----------2C03 case
-	for (i = 0; i < 6; i++) {
-
-		if ((i < 3) && ((!diag[0][i]->filled && !diag[0][i + 1]->filled) || (!diag[6][i]->filled && !diag[6][i + 1]->filled))) {
-
-			counter[3]++;
-		}//end of 1st and 7th diagonals
 		
-		if ((i < 4) && ((!diag[1][i]->filled && !diag[1][i + 1]->filled) || (!diag[5][i]->filled && !diag[5][i + 1]->filled))) {
+void setting(ALLEGRO_EVENT event) {
 
-			counter[3]++;
-		}//end of 2st and 6th diagonals
+	//waiting for solving stop samples
 
-		if ((i < 5) && ((!diag[2][i]->filled && !diag[2][i + 1]->filled) || (!diag[4][i]->filled && !diag[4][i + 1]->filled))) {
-			
-			counter[3]++;
-		}//end of 3st and 5th diagonals
-		if (!diag[3][i]->filled && !diag[3][i + 1]->filled) {
-
-			counter[3]++;
-		}//end of 4th diagonals
-	}
-
-	//----------3C02 case
-	for (i = 0; i < 5; i++) {
-
-		if ((i < 2) && ((!inv_diag[0][i]->filled && !inv_diag[0][i + 1]->filled && !inv_diag[0][i + 2]->filled) || (!inv_diag[6][i]->filled && !inv_diag[6][i + 1]->filled && !inv_diag[6][i + 2]->filled))) {
-
-			counter[5]++;
-		}//end of 1st and 7th inv_diagonals
-
-		if ((i < 3) && ((!inv_diag[1][i]->filled && !inv_diag[1][i + 1]->filled && !inv_diag[1][i + 2]->filled) || (!inv_diag[5][i]->filled && !inv_diag[5][i + 1]->filled && !inv_diag[5][i + 2]->filled))) {
-
-			counter[5]++;
-		}//end of 2st and 6th inv_diagonals
-
-		if ((i < 4) && ((!inv_diag[2][i]->filled && !inv_diag[2][i + 1]->filled && !inv_diag[2][i + 2]->filled) || (!inv_diag[4][i]->filled && !inv_diag[4][i + 1]->filled && !inv_diag[4][i + 2]->filled))) {
-
-			counter[5]++;
-		}//end of 3st and 5th inv_diagonals
-
-		if (!inv_diag[3][i]->filled && !inv_diag[3][i + 1]->filled && !inv_diag[3][i + 2]->filled) {
-
-			counter[5]++;
-		}//end of 4th inv_diagonals
-	}
-
-	//----------3C03 case
-	for (i = 0; i < 5; i++) {
-
-		if ((i < 2) && ((!diag[0][i]->filled && !diag[0][i + 1]->filled && !diag[0][i + 2]->filled) || (!diag[6][i]->filled && !diag[6][i + 1]->filled && !diag[6][i + 2]->filled))) {
-			
-			counter[6]++;
-		}//end of 1st and 7th diagonals
-
-		if ((i < 3) && ((!diag[1][i]->filled && !diag[1][i + 1]->filled && !diag[1][i + 2]->filled) || (!diag[5][i]->filled && !diag[5][i + 1]->filled && !diag[5][i + 2]->filled))) {
-
-			counter[6]++;
-		}//end of 2st and 6th diagonals
-
-		if ((i < 4) && ((!diag[2][i]->filled && !diag[2][i + 1]->filled && !diag[2][i + 2]->filled) || (!diag[4][i]->filled && !diag[4][i + 1]->filled && !diag[4][i + 2]->filled))) {
-		
-			counter[6]++;
-		}//end of 3st and 5th diagonals
-
-		if (!diag[3][i]->filled && !diag[3][i + 1]->filled && !diag[3][i + 2]->filled) {
-		
-			counter[6]++;
-		}//end of 4th diagonals
-	}
-
-	//----------3C04 & 3C05 cases
-	for (i = 0; i < 6; i++) {
-
-		//---3C04
-		if ((i < 4) && ((!col[0][i]->filled && !col[1][i + 1]->filled && !col[2][i + 1]->filled) || (!col[4][i + 1]->filled && !col[5][i + 1]->filled && !col[6][i]->filled))) {
-			counter[7]++;
-		}
-		if ((i < 5) && ((!col[1][i]->filled && !col[2][i + 1]->filled && !col[3][i + 1]->filled) || (!col[3][i + 1]->filled && !col[4][i + 1]->filled && !col[5][i]->filled))) {
-			counter[7]++;
-		}
-		if (!col[2][i]->filled && !col[3][i + 1]->filled && !col[4][i]->filled) {
-			counter[7]++;
-		}
-
-		//---3C05
-		if ((i < 4) && ((!col[0][i]->filled && !col[1][i]->filled && !col[2][i + 1]->filled) || (!col[4][i + 1]->filled && !col[5][i]->filled && !col[6][i]->filled))) {
-			counter[8]++;
-		}
-		if ((i < 5) && ((!col[1][i]->filled && !col[2][i]->filled && !col[3][i + 1]->filled) || (!col[3][i + 1]->filled && !col[4][i]->filled && !col[5][i]->filled))) {
-			counter[8]++;
-		}
-		if (!col[2][i]->filled && !col[3][i]->filled && !col[4][i]->filled) {
-			counter[8]++;
-		}
-	}
-	
-	for (i = 0; i < 3; i++) {
-
-		for (j = 0; j < 9; j++) {
-
-			if (elem[i].id == j && counter[j] == 0) {
-				elem[i].badElem = true;
-			}
-		}
-	}
-
-	for (i = 0; i < 9; i++) {
-		printf("counter[%d] = %d\n", i, counter[i]);
-	}
-	for (i = 0; i < 3; i++) {
-		printf("elem[%d].badElem = %d\n", i, elem[i].badElem);
-	}
-
-	cell_update();
-
-	j = 0;
-	if ((elem[j].badElem && elem[++j].badElem && elem[++j].badElem) || (elem[0].badElem && !elem[1].exist && !elem[2].exist) || (elem[1].badElem && !elem[0].exist && !elem[2].exist) || (elem[2].badElem && !elem[0].exist && !elem[1].exist) || (elem[0].badElem && elem[1].badElem && !elem[2].exist) || (elem[0].badElem && elem[2].badElem && !elem[1].exist) || (elem[1].badElem && elem[2].badElem && !elem[0].exist)) {
-		printf("not true\n");
-		game_over(event);
-	}
-	else {
-		for (j = 0; j < 3; j++) {
-
-			elem[j].badElem == false;
-
-		}
-		printf("all false\n");
-	}
-}
-		
-void check_level() {
-
-	static int countr = 0;
-
-	if (score >= gameLevel * 100 && gameLevel < 4) {
-
-		gameLevel++;
-		
-
-		for (i = 0; i < 2; i++) {
-
-			al_play_sample(levelUp, 1.0, 0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-
-			al_draw_textf(homeFont, al_map_rgb(255, 0, 0), 125, 150, 0, "LEVEL UP !");
-			al_flip_display();
-			al_rest(0.5);
-			
-			al_draw_textf(homeFont, al_map_rgb(255, 240, 0), 125, 150, 0, "LEVEL UP !");
-			al_flip_display();
-			al_rest(0.5);
-		}
-		
-		printf("game level is %d\n\n", gameLevel);
-	}
 
 }
 
@@ -4308,4 +4023,63 @@ void hover(ALLEGRO_EVENT event) {
 			}
 		}
 	}
+}
+
+void shutdown(void) {
+
+	if (done) {
+
+		if (queue)
+			al_destroy_event_queue(queue);
+
+		if (timer)
+			al_destroy_timer(timer);
+
+		if (display)
+			al_destroy_display(display);
+
+		//destroy all bitmaps
+		if (bitmap)
+			al_destroy_bitmap(bitmap);
+
+		if (hexagonal)
+			al_destroy_bitmap(hexagonal);
+
+		if (gameOver)
+			al_destroy_bitmap(gameOver);
+
+		if (menuBitmap)
+			al_destroy_bitmap(menuBitmap);
+
+		//destroy all samples
+		if (animCell)
+			al_destroy_bitmap(animCell);
+
+		if (bgSound)
+			al_destroy_sample(bgSound);
+
+		if (endSound)
+			al_destroy_sample(endSound);
+
+		if (winSound)
+			al_destroy_sample(winSound);
+
+		if (endSound)
+			al_destroy_sample(endSound);
+
+		//destroy all fonts
+		if (font)
+			al_destroy_font(font);
+
+		if (font2)
+			al_destroy_font(font2);
+
+		if (menuFont)
+		al_destroy_font(menuFont);
+
+		al_uninstall_mouse();
+		al_uninstall_keyboard();
+		al_uninstall_audio();
+	}
+
 }

@@ -142,14 +142,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="hexagonGame.rc" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="resource.h" />
-    <ClInclude Include="resource1.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="hexagonIcon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
