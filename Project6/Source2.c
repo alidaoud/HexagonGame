@@ -40,6 +40,7 @@
 typedef enum CELL_PATTERN
 {
 	Column,Diagonal,invDiagonal,Col_Diagonal, Col_invDiagonal,Diag_InvDiagonal
+
 }CELL_PATTERN;
 
 typedef struct HEXAGONAL{
@@ -89,9 +90,11 @@ void check_move();
 void rand_elem();
 void menu(ALLEGRO_EVENT event);
 void help(ALLEGRO_EVENT event);
+void select_level(ALLEGRO_EVENT event);
 void game_over(ALLEGRO_EVENT event);
 void check_end();
 void check_end2();
+void check_level();
 void single_effect(CELL_PATTERN groupType, int , int, int);
 void double_effect(CELL_PATTERN groupType, int, int, int, int, int ,int);
 void hover(ALLEGRO_EVENT event);
@@ -108,26 +111,29 @@ ALLEGRO_COLOR background_color;
 ALLEGRO_FONT *font;
 ALLEGRO_FONT *font2;
 ALLEGRO_FONT *menuFont;
-ALLEGRO_FONT *helpFont; //try to make them an array
+ALLEGRO_FONT *helpFont; 
+ALLEGRO_FONT *homeFont; //try to make them an array
 
 ALLEGRO_BITMAP *bitmap;
-ALLEGRO_BITMAP *bitmap2;
 ALLEGRO_BITMAP *hexagonal;
 ALLEGRO_BITMAP *startClick;
 ALLEGRO_BITMAP *homeOptions[4];
 ALLEGRO_BITMAP *gameOver;
 ALLEGRO_BITMAP *tempBitmap;
 ALLEGRO_BITMAP *menuBitmap;
-ALLEGRO_BITMAP *icon[4];
+ALLEGRO_BITMAP *icon[10];
 ALLEGRO_BITMAP *elmBitmap[9];
 ALLEGRO_BITMAP *animCell;
 ALLEGRO_BITMAP *helpBitmap[4];
+ALLEGRO_BITMAP *soundIcon;
 
 ALLEGRO_SAMPLE *bgSound;
 ALLEGRO_SAMPLE *clickSound;
 ALLEGRO_SAMPLE *endSound;
 ALLEGRO_SAMPLE *winSound;
 ALLEGRO_SAMPLE *animSound;
+ALLEGRO_SAMPLE *levelUp;
+ALLEGRO_SAMPLE_ID *bgSnd;
 
 ALLEGRO_MOUSE_STATE mState;
 
@@ -139,15 +145,14 @@ CELL_PATTERN groupType;
 
 int j, i, k, activeElm, activeCell;
 bool done, game_started, lost, pause;
-static int cellX, cellY, elX, elY;
-static int redraw = 1, score = 0, counter[8];
-int c1, c2, c3;
+static int score = 0,highScore = 0, stars = 0, gameLevel = 1, counter[8];
 
 
 int main() {
 
 	init();
 	//help(event);
+	//game_over(event);
 	Home(event);
 	
 	rand_elem();
@@ -206,7 +211,7 @@ void init() {
 
 		al_show_native_message_box(NULL, "Allegro Error", "Error", "Failed to create display !", NULL, NULL);
 	}
-
+	
 	queue = al_create_event_queue();
 
 	if (!queue) {
@@ -224,6 +229,7 @@ void init() {
 	font2 = al_load_ttf_font("impact.ttf", 35, 0);
 	menuFont = al_load_ttf_font("PermanentMarker.ttf", 63, 0);
 	helpFont = al_load_ttf_font("IndieFlower.ttf", 30, 0);
+	homeFont = al_load_ttf_font("forte.ttf", 50, 0);
 
 	randColr[0] = al_map_rgb(244, 47, 200);
 	randColr[1] = al_map_rgb(212, 169, 51);
@@ -235,10 +241,7 @@ void init() {
 	background_color = al_map_rgb(32, 32, 30);
 
 	
-	//bitmap = al_load_bitmap("emptyCell.png");
-	//bitmap = al_load_bitmap("elmCellNewMod.png");
 	bitmap = al_load_bitmap("elmCell.png");
-	bitmap2 = al_load_bitmap("redCell.png");
 	hexagonal = al_load_bitmap("Hexagonal.png");
 	//hexagonal = al_load_bitmap("original.gif");
 
@@ -274,7 +277,13 @@ void init() {
 	icon[1] = al_load_bitmap("back.png");
 	icon[2] = al_load_bitmap("next.png");
 	icon[3] = al_load_bitmap("back2.png");
-
+	icon[4] = al_load_bitmap("hexagonIcon.png");
+	icon[5] = al_load_bitmap("soundOn.png");
+	icon[6] = al_load_bitmap("soundOff.png");
+	icon[7] = al_load_bitmap("trashGroup.png");
+	icon[8] = al_load_bitmap("star.png");
+	
+	soundIcon = al_clone_bitmap(icon[5]);
 	animCell = al_load_bitmap("testForAnim.png");
 
 	bgSound = al_load_sample("sound.wav");
@@ -282,7 +291,11 @@ void init() {
 	winSound = al_load_sample("laser.wav");
 	endSound = al_load_sample("end.wav");
 	animSound = al_load_sample("test1.wav");
+	levelUp = al_load_sample("level_up.wav");
+	
 	al_reserve_samples(5);
+
+	al_set_display_icon(display, icon[4]);
 
 	al_register_event_source(queue, al_get_keyboard_event_source());
 	al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -480,13 +493,26 @@ void cell_update() {
 
 void draw() {
 
-	int i, j, s[3], n[3], c;
+	static int cellX, cellY, elX, elY;
+	static int redraw = 1;
 
 	cellX = originX, cellY = originY;
 
 	al_clear_to_color(background_color);
-	al_draw_bitmap(icon[0], 440, 10, NULL);
-	al_draw_textf(font, al_map_rgb(255, 255, 255), 5, 5, NULL, "SCORE: %d", score);
+	al_draw_bitmap(icon[0], 440, 80, NULL);
+	al_draw_bitmap(soundIcon, 440, 165, NULL);
+	al_draw_bitmap(icon[7], 440, 240, NULL);
+	al_draw_bitmap(icon[8], 440, 10, NULL);
+	al_draw_textf(helpFont, al_map_rgb(255, 255, 255), 10, 5, NULL, "SCORE: %d", score);
+	al_draw_textf(helpFont, al_map_rgb(255, 255, 255), 10, 45, NULL, "BEST: %d", highScore);
+
+	if(stars <= 9)
+		al_draw_textf(font, al_map_rgb(255, 255, 255), 410, 20, NULL, "%d", stars);
+	else if(stars <= 99)
+		al_draw_textf(font, al_map_rgb(255, 255, 255), 395, 20, NULL, "%d", stars);
+	else if(stars >= 100)
+		al_draw_textf(font, al_map_rgb(255, 255, 255), 380, 20, NULL, "%d", stars);
+
 	//al_draw_bitmap(bitmap3, originX, originY - 55, NULL);
 
 
@@ -628,7 +654,7 @@ void draw() {
 		//al_draw_tinted_bitmap(elem[i].bitmap, randColr[0], elem[i].x, elem[i].y, NULL);
 	}
 
-
+	
 
 	//rand_elem();
 	//redraw_elements();
@@ -636,37 +662,6 @@ void draw() {
 	//al_draw_bitmap(gameOver, 0, 0, NULL);
 	hover(event);
 	al_flip_display();
-}
-
-void test(ALLEGRO_EVENT event) {
-
-	/*for (i = 0; i < 37; i++) {
-
-		al_wait_for_event(queue, &event);
-
-		if (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
-			if ((event.mouse.button & 1) && (event.mouse.x >= cell[1].x) && (event.mouse.x <= cell[1].x + 50) && (event.mouse.y >= cell[1].y) && (event.mouse.y <= cell[1].y + 50)) {
-				printf("Great !\n");
-			}
-		}
-
-	}*/
-
-
-	/*
-	if ((event.mouse.button & 1) && (event.mouse.x >= cell[0].x) && (event.mouse.x <= cell[0].x + cellWidth) && (event.mouse.y >= cell[0].y) && (event.mouse.y <= cell[0].y + cellHeight) && ((move[0].state && !move[1].state && !move[2].state) || (!move[0].state && move[1].state && !move[2].state) || (!move[0].state && !move[1].state && move[2].state))) {
-
-		//move[0].state = true;
-		elem[0].x = cell[0].x;
-		elem[0].y = cell[0].y;
-	}
-	*/
-
-	//if ((event.mouse.button & 1) && (event.mouse.x >= dualCell[0].x) && (event.mouse.x <= dualCell[0].x + cellWidth) && (event.mouse.y >= dualCell[0].y) && (event.mouse.y <= dualCell[0].y + cellHeight) && ((move[0].state && !move[1].state && !move[2].state) || (!move[0].state && move[1].state && !move[2].state) || (!move[0].state && !move[1].state && move[2].state))) {
-
-
-	//}
-
 }
 
 void check(ALLEGRO_EVENT event) {
@@ -753,7 +748,7 @@ void check(ALLEGRO_EVENT event) {
 						}
 					}//end of 2nd and 7th columns
 
-					if ((cell[i].id >= 4 && cell[i].id <= 8) || (cell[i].id >= 23 && cell[i].id <= 27)) {
+					if ((cell[i].id >= 4 && cell[i].id <= 8) || (cell[i].id >= 22 && cell[i].id <= 27)) {
 
 						if (cell[i + 6].filled) {
 							continue;
@@ -1378,7 +1373,7 @@ void check(ALLEGRO_EVENT event) {
 			is_good_diag();
 			is_good_inv_diag();
 			cell_update();
-			check_end2();
+			//check_end2();
 			//check_end();
 		}//
 	}
@@ -3181,43 +3176,6 @@ void is_good_inv_diag() {
 	}
 }
 
-void fill_all() {
-
-	//For test Only
-
-	al_get_mouse_state(&mState);
-	al_wait_for_event(queue, &event);
-
-	for (i = 0; i < 37; i++) {
-
-
-		//if ((al_mouse_button_down(&mState, 1)) && (mState.x >= cell[i].x) && (mState.x <= cell[i].x + cellWidth) && (mState.y >= cell[i].y) && (mState.y <= cell[i].y + cellHeight) && move[0].state || move[1].state || move[2].state) {
-		if ((al_mouse_button_down(&mState, 1)) && (mState.x >= cell[i].x) && (mState.x <= cell[i].x + cellWidth) && (mState.y >= cell[i].y) && (mState.y <= cell[i].y + cellHeight)) {
-			cell[i].filled = true;
-
-			cell[i].bitmap = al_clone_bitmap(bitmap2);
-			al_draw_bitmap(cell[i].bitmap, cell[i].x, cell[i].y, NULL);
-
-			if (move[0].state && cell[i].filled) {
-
-				move[0].state = false;
-			}
-			if (move[1].state && cell[i].filled) {
-
-				move[1].state = false;
-			}
-			if (move[2].state && cell[i].filled) {
-
-				move[2].state = false;
-			}
-
-			printf("Great %d !\n", i);
-		}
-	}
-	al_flip_display();
-	check(event);
-}
-
 void user_input(ALLEGRO_EVENT event) {
 
 	//al_get_mouse_state(&mState);
@@ -3250,29 +3208,31 @@ void user_input(ALLEGRO_EVENT event) {
 
 void game_loop(ALLEGRO_EVENT event) {
 
+	static bool soundOn = true;
+
 	al_start_timer(timer);
+
+	if (soundOn)
+		//al_play_sample(bgSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, bgSnd);
 
 	while (!done) {
 
 		al_wait_for_event(queue, &event);
-		//al_play_sample(bgSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, 0);
+
+		
 
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-			done = true;
-		}
-
-		if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
 			//done = true;
+			shutdown();
+			exit(-1);
 		}
-		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 
-			if ((event.mouse.button & 1) && (event.mouse.x >= 440) && (event.mouse.x <= 490) && (event.mouse.y >= 10) && (event.mouse.y <= 60)) {
-
-				printf("pause!\n");
-				pause = true;
-				menu(event);
-			}
-		}
+		/*if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+			//done = true;
+			shutdown();
+			exit(-1);
+		}*/
+		
 		if (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
 
 			elem[3].x = event.mouse.x;
@@ -3280,6 +3240,34 @@ void game_loop(ALLEGRO_EVENT event) {
 			//hover(event);
 		}
 		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+
+
+			 if ((event.mouse.button & 1) && (event.mouse.x >= 440) && (event.mouse.x <= 490) && (event.mouse.y >= 80) && (event.mouse.y <= 120)) {
+			
+				 printf("pause!\n");
+				 pause = true;
+				 menu(event);
+			}
+			else if ((event.mouse.button & 1) && (event.mouse.x >= 440) && (event.mouse.x <= 490) && (event.mouse.y >= 165) && (event.mouse.y <= 215)) {
+
+				if (!soundOn) {
+
+					soundOn = true;
+					soundIcon = al_clone_bitmap(icon[5]);
+					//al_play_sample(bgSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, bgSnd);
+				}
+				else if (soundOn){
+					
+					soundOn = false;
+					soundIcon = al_clone_bitmap(icon[6]);
+					//al_stop_sample(bgSnd);
+				}
+			}
+			else if ((event.mouse.button & 1) && (stars >= 20) && (event.mouse.x >= 440) && (event.mouse.x <= 490) && (event.mouse.y >= 240) && (event.mouse.y <= 290)) {
+
+				rand_elem();
+				stars -= 20;
+			}
 
 			for (i = 0; i < 3; i++) {
 
@@ -3327,13 +3315,16 @@ void game_loop(ALLEGRO_EVENT event) {
 					elem[i].y = elem[i].orgY;
 				}
 			}
+			check_end2();
 			check(event); //the order is very important here check function must be before the check_end function definetly
 			check_end2();
-			check(event); 
+			//check(event); 
+			
 
 		}
 		draw();
-		//hover(event);
+		hover(event);
+		check_level();
 	}
 	printf("done!");
 }
@@ -3354,9 +3345,6 @@ void shutdown(void) {
 		//destroy all bitmaps
 		if (bitmap)
 			al_destroy_bitmap(bitmap);
-
-		if (bitmap2)
-			al_destroy_bitmap(bitmap2);
 
 		if (hexagonal)
 			al_destroy_bitmap(hexagonal);
@@ -3428,24 +3416,28 @@ void Home(ALLEGRO_EVENT event) {
 		if ((event.mouse.x >= 120) && (event.mouse.x <= 380) && (event.mouse.y >= 250) && (event.mouse.y <= 285)) {
 
 			al_draw_tinted_bitmap(homeOptions[1], al_map_rgb(108, 0, 255), 120, 250, NULL);
-			al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+			
 			if (event.mouse.button & 1) {
+				al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 				started = true;
 			}
 		}
 		if ((event.mouse.x >= 140) && (event.mouse.x <= 360) && (event.mouse.y >= 350) && (event.mouse.y <= 385)) {
 
 			al_draw_tinted_bitmap(homeOptions[2], al_map_rgb(108, 0, 255), 120, 350, NULL);
-			al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+			
 			if (event.mouse.button & 1) {
+				al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 				printf("level\n");
+				select_level(event);
 			}
 		}
 		if ((event.mouse.x >= 200) && (event.mouse.x <= 290) && (event.mouse.y >= 450) && (event.mouse.y <= 485)) {
 
 			al_draw_tinted_bitmap(homeOptions[3], al_map_rgb(108, 0, 255), 120, 450, NULL);
-			al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+			
 			if (event.mouse.button & 1) {
+				al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
 				shutdown();
 				exit(-1);
 			}
@@ -3455,18 +3447,96 @@ void Home(ALLEGRO_EVENT event) {
 
 }
 
+void select_level(ALLEGRO_EVENT event) {
+
+	bool done = false;
+
+	while (!done)
+	{
+		al_wait_for_event(queue, &event);
+
+		al_draw_bitmap(tempBitmap, 0, 0, 0);
+		al_draw_textf(homeFont, al_map_rgb(169, 169, 169), 200, 190, 0, "Easy");
+		al_draw_textf(homeFont, al_map_rgb(169, 169, 169), 180, 290, 0, "Normal");
+		al_draw_textf(homeFont, al_map_rgb(169, 169, 169), 200, 390, 0, "Hard");
+
+
+		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+			shutdown();
+			exit(-1);
+		}
+		if ((event.mouse.x >= 200) && (event.mouse.x <= 340) && (event.mouse.y >= 190) && (event.mouse.y <= 240)) {
+
+			al_draw_textf(homeFont, al_map_rgb(108, 0, 255), 200, 190, 0, "Easy");
+			
+			if (event.mouse.button & 1) {
+				al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+				gameLevel = 1;
+				done = true;
+			}
+		}
+		if ((event.mouse.x >= 180) && (event.mouse.x <= 360) && (event.mouse.y >= 290) && (event.mouse.y <= 340)) {
+
+			al_draw_textf(homeFont, al_map_rgb(108, 0, 255), 180, 290, 0, "Normal");
+			
+			if (event.mouse.button & 1) {
+				al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+				gameLevel = 2;
+				done = true;
+			}
+		}
+		if ((event.mouse.x >= 200) && (event.mouse.x <= 340) && (event.mouse.y >= 390) && (event.mouse.y <= 440)) {
+
+			al_draw_textf(homeFont, al_map_rgb(108, 0, 255), 200, 390, 0, "Hard");
+			
+			if (event.mouse.button & 1) {
+				al_play_sample(clickSound, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+				gameLevel = 3;
+				done = true;
+				
+			}
+		}
+		al_flip_display();
+	}
+	printf("level = %d", gameLevel);
+}
+
 void rand_elem() {
 
 
 	srand(time(NULL));
 
-	int choice, e1, e2, e3;
+	int e1, e2, e3;
+	int c1, c2, c3;
 
-	choice = rand() % 3;
-	e1 = rand() % 9;
-	e2 = rand() % 9;
-	e3 = rand() % 9;
+	if (gameLevel == 1) {
 
+		e1 = rand() % 9;
+		e2 = rand() % 9;
+		e3 = rand() % 9;
+	}
+	else if (gameLevel == 2) {
+
+		do
+		{
+			e1 = rand() % 9;
+			e2 = rand() % 9;
+			e3 = rand() % 9;
+
+		} while (e1 < 2 || e2 < 2 || e3 < 2);
+	}
+	else if (gameLevel >= 3) {
+
+		do
+		{
+			e1 = rand() % 9;
+			e2 = rand() % 9;
+			e3 = rand() % 9;
+
+		} while (e1 < 4 || e2 < 4 || e3 < 4);
+	}
+
+	
 	c1 = rand() % 6;
 	c2 = rand() % 6;
 	c3 = rand() % 6;
@@ -3499,57 +3569,34 @@ void rand_elem() {
 	elem[1].elmClr = randColr[c2];
 	elem[2].elmClr = randColr[c3];
 	
-	
-
-	/*
-	switch (choice)
-	{
-	case 0:
-		elem[0] = rndElem[e1];
-		elem[1] = rndElem[e2];
-		elem[2] = rndElem[e3];
-
-		elem[0].elmClr = randColr[c1];
-		elem[1].elmClr = randColr[c2];
-		elem[2].elmClr = randColr[c3];
-		//printf("case 0\n");
-		break;
-
-	case 1:
-		elem[0] = rndElem[e3];
-		elem[1] = rndElem[e1];
-		elem[2] = rndElem[e2];
-
-		elem[0].elmClr = randColr[c1];
-		elem[1].elmClr = randColr[c2];
-		elem[2].elmClr = randColr[c3];
-		//printf("case 1\n");
-		break;
-
-	case 2:
-		elem[0] = rndElem[e2];
-		elem[1] = rndElem[e3];
-		elem[2] = rndElem[e1];
-
-		elem[0].elmClr = randColr[c1];
-		elem[1].elmClr = randColr[c2];
-		elem[2].elmClr = randColr[c3];
-		//printf("case 2\n");
-		break;
-	}
-	
-	*/
 }
 
 void game_over(ALLEGRO_EVENT event) {
 
 	al_rest(1.0);
 	al_play_sample(endSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-	gameOver = al_clone_bitmap(gameOver);
-	al_draw_bitmap(gameOver, 0, 0, NULL);
-	al_draw_textf(font2, al_map_rgb(106, 222, 103), 335, 278, NULL, "%d", score);
+	
+	for (j = 0; j <= score; j++) { //adding effect to the score
+
+		al_draw_bitmap(gameOver, 0, 0, NULL);
+		al_draw_textf(font2, al_map_rgb(106, 222, 103), 335, 278, NULL, "%d", j);
+		al_flip_display();
+
+		if (score <= 100)
+			al_rest(0.009);
+		else if (score > 100 && score < 200)
+			al_rest(0.005);
+		else if (score > 200 && score < 300)
+			al_rest(0.003);
+		else if (score > 300 && score < 400)
+			al_rest(0.00001);
+		else
+			continue;
+			
+	}
 
 	lost = true;
+
 	while (lost)
 	{
 
@@ -3592,6 +3639,8 @@ void game_over(ALLEGRO_EVENT event) {
 				exit(-1);
 			}
 		}
+		stars = score / 10;
+		printf("stars is %d\n", stars);
 		al_flip_display();
 	}
 
@@ -3629,11 +3678,13 @@ void menu(ALLEGRO_EVENT event) {
 			else if ((event.mouse.button & 1) && (event.mouse.x >= 175) && (event.mouse.x <= 318) && (event.mouse.y >= 330) && (event.mouse.y <= 370)) {
 
 				printf("Help\n");
+				pause = false;
 				help(event);
 			}
 			else if ((event.mouse.button & 1) && (event.mouse.x >= 185) && (event.mouse.x <= 314) && (event.mouse.y >= 425) && (event.mouse.y <= 465)) {
 
 				printf("Exit\n");
+				pause = false;
 				shutdown();
 				exit(-1);
 				
@@ -3870,6 +3921,7 @@ void check_end() {
 
 void check_end2() {
 
+
 	for (i = 0; i < 9; i++) {
 		counter[i] = 0;
 	}
@@ -4050,7 +4102,34 @@ void check_end2() {
 		printf("all false\n");
 	}
 }
+		
+void check_level() {
+
+	static int countr = 0;
+
+	if (score >= gameLevel * 100 && gameLevel < 4) {
+
+		gameLevel++;
+		
+
+		for (i = 0; i < 2; i++) {
+
+			al_play_sample(levelUp, 1.0, 0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+
+			al_draw_textf(homeFont, al_map_rgb(255, 0, 0), 125, 150, 0, "LEVEL UP !");
+			al_flip_display();
+			al_rest(0.5);
 			
+			al_draw_textf(homeFont, al_map_rgb(255, 240, 0), 125, 150, 0, "LEVEL UP !");
+			al_flip_display();
+			al_rest(0.5);
+		}
+		
+		printf("game level is %d\n\n", gameLevel);
+	}
+
+}
+
 void single_effect(CELL_PATTERN groupType, int rowNumber, int START, int END) {
 
 
@@ -4205,29 +4284,28 @@ void double_effect(CELL_PATTERN groupType, int rowNum1, int START1, int END1, in
 
 void hover(ALLEGRO_EVENT event) {
 
-	bool clrChanged = false;
 
+	for (i = 0; i < 37; i++) {
 
-		for (i = 0; i < 37; i++) {
+		if (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
 
 			if (((event.mouse.x >= cell[i].x) && (event.mouse.x <= cell[i].x + cellWidth) && (event.mouse.y >= cell[i].y) && (event.mouse.y <= cell[i].y + cellHeight)) && (move[0].state || move[1].state || move[2].state)) {
 
-			//if (elem[activeElm].id == 0) {
-				
+				if (elem[activeElm].id == 0 && !cell[i].filled) {
+
 				cell[i].cellClr = elem[activeElm].elmClr;
 				printf("hover!\n");
-				clrChanged = true;
-			//}
-			}
-			else if (clrChanged && ((event.mouse.x < cell[i].x) || (event.mouse.x > cell[i].x + cellWidth) || (event.mouse.y < cell[i].y) || (event.mouse.y > cell[i].y + cellHeight))) {
+				}
+				if ((elem[activeElm].id == 1) && (!cell[i].filled && !cell[i + 1].filled)) {
 
-				
+					cell[i].cellClr = elem[activeElm].elmClr;
+					cell[i + 1].cellClr = elem[activeElm].elmClr;
+				}
+			}
+			else if (!cell[i].filled) {
+
 				cell[i].cellClr = al_map_rgb(255, 255, 255);
-				clrChanged = false;
 			}
-			//al_draw_tinted_bitmap(cell[i].bitmap, cell[i].cellClr, cell[i].x, cell[i].y, NULL);
-			//al_flip_display();
-			//draw();
+		}
 	}
-
 }
