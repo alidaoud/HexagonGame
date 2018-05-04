@@ -1,3 +1,3 @@
-some Improvements have been accomplished:
-deleting unnecessey stuffs, change the design of the game screen, adding new buttons, adding new featuers(e.g. having the chance to change the elements for 20 stars, new levels, new effects)
-The ability to stop samples still doesn't works till now.
+**New function that allows to delete any cell in case you have enough stars, for each cell you need 10 stars
+
+**Some changes in design have been done

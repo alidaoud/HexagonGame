@@ -25,11 +25,11 @@
 #define screenWidth 500
 #define screenHeight 600
 
-#define originX 120
+#define originX 130
 #define originY 120
 
 #define elemX 70
-#define elemY 400
+#define elemY 440
 
 #define cellWidth 30
 #define cellHeight 36
@@ -45,7 +45,7 @@ typedef struct HEXAGONAL{
 
 	int id;
 	int value;
-	bool filled;
+	bool filled, canDeleted;
 	int x, y;
 	ALLEGRO_BITMAP *bitmap;
 	ALLEGRO_COLOR cellClr;
@@ -91,7 +91,7 @@ void check_end();
 void check_level();
 void single_effect(CELL_PATTERN groupType, int , int, int);
 void double_effect(CELL_PATTERN groupType, int, int, int, int, int ,int);
-void hover(ALLEGRO_EVENT event);
+void destroyCells(ALLEGRO_EVENT event);
 
 ALLEGRO_DISPLAY *display;
 ALLEGRO_EVENT_QUEUE *queue;
@@ -110,7 +110,7 @@ ALLEGRO_BITMAP *gameOver;
 ALLEGRO_BITMAP *backGround;
 ALLEGRO_BITMAP *menuBitmap;
 ALLEGRO_BITMAP *animCell;
-ALLEGRO_BITMAP *icon[10];
+ALLEGRO_BITMAP *icon[11];
 ALLEGRO_BITMAP *elmBitmap[9];
 ALLEGRO_BITMAP *helpBitmap[4];
 ALLEGRO_BITMAP *homeOptions[4];
@@ -122,6 +122,8 @@ ALLEGRO_SAMPLE *endSound;
 ALLEGRO_SAMPLE *winSound;
 ALLEGRO_SAMPLE *animSound;
 ALLEGRO_SAMPLE *levelUp;
+ALLEGRO_SAMPLE *reject;
+ALLEGRO_SAMPLE *trash;
 ALLEGRO_SAMPLE_ID *bgSnd;
 
 ALLEGRO_MOUSE_STATE mState;
@@ -132,10 +134,10 @@ ELEMNET elem[4], rndElem[9];
 ACTION move[3];
 CELL_PATTERN groupType;
 
-bool done;
+bool done, destroy;
 int j, i, k, activeElm, activeCell;
 static int score = 0,highScore = 0,
-stars = 0, gameLevel = 1, counter[8];
+stars = 80, gameLevel = 1, counter[8];
 
 
 int main() {
@@ -225,7 +227,7 @@ void init() {
 	bitmap = al_load_bitmap("bitmaps/elmCell.png");
 	hexagonal = al_load_bitmap("bitmaps/Hexagonal.png");
 	animCell = al_load_bitmap("bitmaps/anim.png");
-	test = al_load_bitmap("bitmaps/opacity.png");
+	test = al_load_bitmap("bitmaps/hammer2.png");
 
 	gameOver = al_load_bitmap("bitmaps/gameOver.png");
 	backGround = al_load_bitmap("bitmaps/backGround.png");
@@ -251,16 +253,18 @@ void init() {
 	homeOptions[2] = al_load_bitmap("bitmaps/selectLevel.png");
 	homeOptions[3] = al_load_bitmap("bitmaps/quit.png");
 
-	icon[0] = al_load_bitmap("bitmaps/pause.png");
+	icon[0] = al_load_bitmap("bitmaps/star.png");
 	icon[1] = al_load_bitmap("bitmaps/back.png");
 	icon[2] = al_load_bitmap("bitmaps/next.png");
 	icon[3] = al_load_bitmap("bitmaps/back2.png");
-	icon[4] = al_load_bitmap("bitmaps/hexagonIcon.png");
+	icon[4] = al_load_bitmap("bitmaps/pause.png");
 	icon[5] = al_load_bitmap("bitmaps/soundOn.png");
 	icon[6] = al_load_bitmap("bitmaps/soundOff.png");
 	icon[7] = al_load_bitmap("bitmaps/trashGroup.png");
-	icon[8] = al_load_bitmap("bitmaps/star.png");
-	
+	icon[8] = al_load_bitmap("bitmaps/hexagonIcon.png");
+	icon[9] = al_load_bitmap("bitmaps/hammerGroup.png");
+	icon[10] = al_load_bitmap("bitmaps/shutdown.png");
+
 	soundIcon = al_clone_bitmap(icon[5]);
 	//end of loading bitmaps
 
@@ -271,10 +275,13 @@ void init() {
 	endSound = al_load_sample("sounds/end.wav");
 	animSound = al_load_sample("sounds/test1.wav");
 	levelUp = al_load_sample("sounds/level_up.wav");
-	//end of loading sampales
-	al_reserve_samples(5);
+	reject = al_load_sample("sounds/no_access.wav");
+	trash = al_load_sample("sounds/magic.wav");
 
-	al_set_display_icon(display, icon[4]);
+	//end of loading sampales
+	al_reserve_samples(8);
+
+	al_set_display_icon(display, icon[8]);
 
 	al_register_event_source(queue, al_get_keyboard_event_source());
 	al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -411,6 +418,7 @@ void cell_update() {
 		if (!game_started) {
 
 			cell[i].filled = false;
+			cell[i].canDeleted = false;
 			cell[i].id = i;
 			cell[i].cellClr = al_map_rgb(100, 50, 50);
 			cell[i].bitmap = al_clone_bitmap(bitmap); //i moved the clone to this section to be done once when the game started to avoid overload memory
@@ -422,6 +430,11 @@ void cell_update() {
 
 				cell[i].bitmap = al_clone_bitmap(bitmap);
 			}
+			if(!cell[i].canDeleted && !cell[i].filled){
+
+				cell[i].cellClr = al_map_rgb(255, 255, 255);
+				al_draw_tinted_bitmap(cell[i].bitmap, cell[i].cellClr, cell[i].x, cell[i].y, NULL);
+			}
 			cell[i].cellClr = al_map_rgb(255, 255, 255);
 			al_draw_tinted_bitmap(cell[i].bitmap, cell[i].cellClr, cell[i].x, cell[i].y, NULL);
 		}
@@ -430,6 +443,11 @@ void cell_update() {
 			al_draw_tinted_bitmap(cell[i].bitmap, cell[i].cellClr, cell[i].x, cell[i].y, NULL);
 			
 		}
+		/*if (cell[i].canDeleted) {
+
+			al_draw_bitmap(test, cell[i].x, cell[i].y, NULL);
+			printf("****canDeleted\n\n");
+		}*/
 	}
 	
 	game_started = true;
@@ -444,10 +462,13 @@ void draw() {
 	cellX = originX, cellY = originY;
 
 	al_clear_to_color(background_color);
-	al_draw_bitmap(icon[0], 440, 80, NULL);
-	al_draw_bitmap(soundIcon, 440, 165, NULL);
-	al_draw_bitmap(icon[7], 440, 240, NULL);
-	al_draw_bitmap(icon[8], 440, 10, NULL);
+	al_draw_bitmap(icon[0], 440, 10, NULL); //star icon
+	al_draw_bitmap(icon[4], 440, 80, NULL); //pause icon
+	al_draw_bitmap(soundIcon, 440, 165, NULL); //sound icon
+	al_draw_bitmap(icon[7], 178, 325, NULL); //Trash icon
+	al_draw_bitmap(icon[9], 270, 325, NULL); //Hammer icon
+	//al_draw_bitmap(icon[10], 440, 100, NULL); //shutdown icon
+
 	al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 5, NULL, "SCORE: %d", score);
 	al_draw_textf(font, al_map_rgb(255, 255, 255), 10, 45, NULL, "BEST: %d", highScore);
 
@@ -525,6 +546,20 @@ void draw() {
 		cell[j].y = cellY + 1;
 
 		cellY += 37.2; //increase the height value only in order to continue drawing from top to the bottom
+	}
+
+	// =======  >>>>> Drawing the thunders over the cells that can be destroyd <<<<< ========
+
+
+	for (i = 0; i < 37; i++) {
+
+		if (cell[i].canDeleted && destroy) {
+
+			
+			al_draw_bitmap(test, cell[i].x + 5, cell[i].y, NULL);
+			
+		}
+		
 	}
 
 	// ======================  >>>>> Drawing the Elements <<<<< =========================
@@ -648,12 +683,6 @@ void check(ALLEGRO_EVENT event) {
 
 	for (i = 0; i < 37; i++) {
 
-		/*	if ((elem[3].x >= cell[i].x) && (elem[3].x <= cell[i].x + cellWidth) && (elem[3].y >= cell[i].y) && (elem[3].y <= cell[i].y + cellHeight)) {
-		cell[i].cellClr = elem[activeElm].elmClr;
-		}
-		else {
-		cell[i].cellClr = al_map_rgb(100, 50, 50);
-		}*/
 
 		if ((event.mouse.button & 1) && (!cell[i].filled) && (event.mouse.x >= cell[i].x) && (event.mouse.x <= cell[i].x + cellWidth) && (event.mouse.y >= cell[i].y) && (event.mouse.y <= cell[i].y + cellHeight) && ((move[0].state && !move[1].state && !move[2].state) || (!move[0].state && move[1].state && !move[2].state) || (!move[0].state && !move[1].state && move[2].state))) {
 
@@ -670,9 +699,9 @@ void check(ALLEGRO_EVENT event) {
 					elem[activeElm].exist = false;
 					move[activeElm].state = false;
 
-					printf("el[%d].x = %d -- el[%d].y = %d", i, elem[activeElm].x, i, elem[activeElm].y);
-					printf("activEL is  %d\n", activeElm);
-					printf("exist[%d] = %d", i, elem[i].exist);
+					//printf("el[%d].x = %d -- el[%d].y = %d", i, elem[activeElm].x, i, elem[activeElm].y);
+					//printf("activEL is  %d\n", activeElm);
+					//printf("exist[%d] = %d", i, elem[i].exist);
 
 				}
 			}
@@ -1345,8 +1374,8 @@ void check(ALLEGRO_EVENT event) {
 				}
 
 			}
-			printf("cell[%d].filled = %d\n", i, cell[i].filled);
-			printf("Your Score is = %d\n", score);
+			//printf("cell[%d].filled = %d\n", i, cell[i].filled);
+			//printf("Your Score is = %d\n", score);
 			cell_update();
 			draw();
 			is_good_col();
@@ -1365,17 +1394,18 @@ void check_move() {
 	//Check the first Element
 	if (move[0].state && !move[1].state && !move[2].state) {
 
-		if (elem[0].bitmap != elmBitmap[3] && elem[0].bitmap != elmBitmap[6] && elem[0].bitmap != elmBitmap[8]) {
-
+		//edit the element coordinates depending on its type
+		if (elem[0].exist && elem[0].bitmap != elmBitmap[3] && elem[0].bitmap != elmBitmap[6] && elem[0].bitmap != elmBitmap[8]) {
+			
 			elem[0].x = elem[3].x - 15;
 			elem[0].y = elem[3].y - 15;
 		}
-		else if (elem[0].bitmap == elmBitmap[3] || elem[0].bitmap == elmBitmap[8]) {
+		else if (elem[0].exist && (elem[0].bitmap == elmBitmap[3] || elem[0].bitmap == elmBitmap[8])) {
 
 			elem[0].x = elem[3].x - 35;
 			elem[0].y = elem[3].y - 15;
 		}
-		else if (elem[0].bitmap == elmBitmap[6]) {
+		else if (elem[0].exist && elem[0].bitmap == elmBitmap[6]) {
 
 			elem[0].x = elem[3].x - 70;
 			elem[0].y = elem[3].y - 15;
@@ -1386,17 +1416,18 @@ void check_move() {
 	//Check the second Element
 	if (move[1].state && !move[0].state && !move[2].state) {
 
-		if (elem[1].bitmap != elmBitmap[3] && elem[1].bitmap != elmBitmap[6] && elem[1].bitmap != elmBitmap[8]) {
+		//edit the element coordinates depending on its type
+		if (elem[1].exist && elem[1].bitmap != elmBitmap[3] && elem[1].bitmap != elmBitmap[6] && elem[1].bitmap != elmBitmap[8]) {
 
 			elem[1].x = elem[3].x - 15;
 			elem[1].y = elem[3].y - 15;
 		}
-		else if (elem[1].bitmap == elmBitmap[3] || elem[1].bitmap == elmBitmap[8]) {
+		else if (elem[1].exist && (elem[1].bitmap == elmBitmap[3] || elem[1].bitmap == elmBitmap[8])) {
 
 			elem[1].x = elem[3].x - 35;
 			elem[1].y = elem[3].y - 15;
 		}
-		else if (elem[1].bitmap == elmBitmap[6]) {
+		else if (elem[1].exist && elem[1].bitmap == elmBitmap[6]) {
 
 			elem[1].x = elem[3].x - 70;
 			elem[1].y = elem[3].y - 15;
@@ -1406,17 +1437,18 @@ void check_move() {
 	//Check the third Element
 	if (move[2].state && !move[0].state && !move[1].state) {
 
-		if (elem[2].bitmap != elmBitmap[3] && elem[2].bitmap != elmBitmap[6] && elem[2].bitmap != elmBitmap[8]) {
+		//edit the element coordinates depending on its type
+		if (elem[2].exist && elem[2].bitmap != elmBitmap[3] && elem[2].bitmap != elmBitmap[6] && elem[2].bitmap != elmBitmap[8]) {
 
 			elem[2].x = elem[3].x - 15;
 			elem[2].y = elem[3].y - 15;
 		}
-		else if (elem[2].bitmap == elmBitmap[3] || elem[2].bitmap == elmBitmap[8]) {
+		else if (elem[2].exist && (elem[2].bitmap == elmBitmap[3] || elem[2].bitmap == elmBitmap[8])) {
 
 			elem[2].x = elem[3].x - 35;
 			elem[2].y = elem[3].y - 15;
 		}
-		else if (elem[2].bitmap == elmBitmap[6]) {
+		else if (elem[2].exist && elem[2].bitmap == elmBitmap[6]) {
 
 			elem[2].x = elem[3].x - 70;
 			elem[2].y = elem[3].y - 15;
@@ -3391,12 +3423,6 @@ void game_loop(ALLEGRO_EVENT event) {
 			shutdown();
 			exit(-1);
 		}
-
-		/*if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-			//done = true;
-			shutdown();
-			exit(-1);
-		}*/
 		
 		if (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
 
@@ -3430,11 +3456,30 @@ void game_loop(ALLEGRO_EVENT event) {
 					//al_stop_sample(bgSnd);
 				}
 			}
-			else if ((event.mouse.button & 1) && (stars >= 20) && (event.mouse.x >= 440) && (event.mouse.x <= 490) && (event.mouse.y >= 240) && (event.mouse.y <= 290)) {
+			else if ((event.mouse.button & 1) && (event.mouse.x >= 178) && (event.mouse.x <= 228) && (event.mouse.y >= 326) && (event.mouse.y <= 376)) {
+				//trash button
+				if (stars < 20) {
 
-				al_play_sample(clickSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
-				rand_elem();
-				stars -= 20;
+					al_play_sample(reject, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+				}
+				else {
+					al_play_sample(trash, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+					rand_elem();
+					stars -= 20;
+				}
+				
+			}
+			else if ((event.mouse.button & 1) && (event.mouse.x >= 270) && (event.mouse.x <= 320) && (event.mouse.y >= 326) && (event.mouse.y <= 376)) {
+				//hammer button
+				if (stars < 20) {
+
+					al_play_sample(reject, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+				}
+				else {
+					al_play_sample(clickSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+					destroy = true;
+					destroyCells(event);
+				}
 			}
 
 			for (i = 0; i < 3; i++) {
@@ -3449,10 +3494,7 @@ void game_loop(ALLEGRO_EVENT event) {
 
 						activeElm = i;
 					}
-					printf("1stMove[%d].state =  %d\n", i, move[i].state);
-					printf("click %d\n", i);
-					printf("activEL is  %d\n", activeElm);
-					printf("exist[%d] = %d\n", i, elem[i].exist);
+					
 				}
 				else if ((event.mouse.button & 1) && (elem[i].bitmap == elmBitmap[3] || elem[i].bitmap == elmBitmap[8]) && (event.mouse.x >= elem[i].x + 30) && (event.mouse.x <= elem[i].x + 2 * cellWidth) && (event.mouse.y >= elem[i].y) && (event.mouse.y <= elem[i].y + cellHeight)) {
 
@@ -3483,15 +3525,14 @@ void game_loop(ALLEGRO_EVENT event) {
 					elem[i].y = elem[i].orgY;
 				}
 			}
-			check_end();
+			//check_end();
 			check(event); //the order is very important here check function must be before the check_end function definetly
 			check_end();
 			//check(event); 
-			
-
 		}
+		//hover(event);
 		draw();
-		hover(event);
+		//hover(event);
 		check_level();
 	}
 	printf("done!");
@@ -3997,34 +4038,6 @@ void double_effect(CELL_PATTERN groupType, int rowNum1, int START1, int END1, in
 	}
 }
 
-void hover(ALLEGRO_EVENT event) {
-
-
-	for (i = 0; i < 37; i++) {
-
-		if (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
-
-			if (((event.mouse.x >= cell[i].x) && (event.mouse.x <= cell[i].x + cellWidth) && (event.mouse.y >= cell[i].y) && (event.mouse.y <= cell[i].y + cellHeight)) && (move[0].state || move[1].state || move[2].state)) {
-
-				if (elem[activeElm].id == 0 && !cell[i].filled) {
-
-				cell[i].cellClr = elem[activeElm].elmClr;
-				printf("hover!\n");
-				}
-				if ((elem[activeElm].id == 1) && (!cell[i].filled && !cell[i + 1].filled)) {
-
-					cell[i].cellClr = elem[activeElm].elmClr;
-					cell[i + 1].cellClr = elem[activeElm].elmClr;
-				}
-			}
-			else if (!cell[i].filled) {
-
-				cell[i].cellClr = al_map_rgb(255, 255, 255);
-			}
-		}
-	}
-}
-
 void shutdown(void) {
 
 	if (done) {
@@ -4083,3 +4096,49 @@ void shutdown(void) {
 	}
 
 }
+
+void destroyCells(ALLEGRO_EVENT event) {
+
+
+
+	for (i = 0; i < 37; i++) {
+
+		if (cell[i].filled) 
+			cell[i].canDeleted = true;
+	}
+
+	while (destroy)
+	{	
+		al_wait_for_event(queue, &event);
+		
+		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+
+		if ((event.mouse.button & 1) && (event.mouse.x >= 270) && (event.mouse.x <= 320) && (event.mouse.y >= 326) && (event.mouse.y <= 376)) {
+
+				destroy = false;
+				printf("canceld\n");
+				for (i = 0; i < 37; i++) {
+
+					if (cell[i].filled) 
+						cell[i].canDeleted = false;
+				}
+			}
+
+			for (i = 0; i < 37; i++) {
+
+				if ((event.mouse.button & 1) && (cell[i].canDeleted) && (event.mouse.x >= cell[i].x) && (event.mouse.x <= cell[i].x + cellWidth) && (event.mouse.y >= cell[i].y) && (event.mouse.y <= cell[i].y + cellHeight)) {
+
+					al_play_sample(winSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, 0);
+					cell[i].filled = false;
+					cell[i].canDeleted = false;
+					stars -= 10;
+				}
+			}
+		}
+		
+		cell_update();
+		draw();
+	}
+		
+}
+
